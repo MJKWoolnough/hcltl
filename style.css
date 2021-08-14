@@ -48,7 +48,7 @@ tbody td {
 }
 
 .box {
-	background-color: #000;
+	background-color: currentColor;
 	position: absolute;
 	z-index: 1;
 	height: 2em;
