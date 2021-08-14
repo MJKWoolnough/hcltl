@@ -52,7 +52,7 @@ const minuteWidth = 10,
 	for (const [user, start, stop] of data) {
 		const d = rows.get(user)!,
 		      [a, b] = roundTimes(start, stop);
-		d.appendChild(div({"title": formatTime(start) + " ⟶ " + formatTime(stop), "class": "box", "style": {"width": (minuteWidth * (b - a) / 60) + "px", "left": (minuteWidth * (a - earliest) / 60) + "px"}}));
+		d.appendChild(div({"title": formatTime(start) + " ⟶ " + formatTime(stop), "style": {"width": (minuteWidth * (b - a) / 60) + "px", "left": (minuteWidth * (a - earliest) / 60) + "px"}}));
 	}
 	createHTML(clearElement(timeline), table([
 		thead(tr([td(), td({"style": {"width": (minuteWidth * (latest - earliest) / 60) + "px"}}, svg({"width": minuteWidth * (latest - earliest) / 60, "height": 20, "viewBox": `0 0 ${minuteWidth * (latest - earliest) / 60} 20`}, [
