@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/extrame/xls"
 )
@@ -90,10 +91,15 @@ func run() error {
 	return nil
 }
 
-func parseTime(t string) uint64 {
-	p, err := strconv.ParseFloat(t, 64)
+func parseTime(v string) int64 {
+	p, err := strconv.ParseFloat(v, 64)
 	if err != nil {
 		return 0
 	}
-	return uint64(math.Round((p - 25569) * 86400))
+	u := int64(math.Round((p - 25569) * 86400))
+	t := time.Unix(u, 0)
+	y, mo, d := t.Date()
+	h, mi, s := t.Clock()
+	_, offset := time.Date(y, mo, d, h, mi, s, 0, time.Local).Zone()
+	return u - int64(offset)
 }
