@@ -56,7 +56,7 @@ const minuteWidth = 10,
 	}
 	createHTML(clearElement(timeline), table([
 		thead(tr([td(), td({"style": {"width": (minuteWidth * (latest - earliest) / 60) + "px"}}, svg({"width": minuteWidth * (latest - earliest) / 60, "height": 20, "viewBox": `0 0 ${minuteWidth * (latest - earliest) / 60} 20`}, [
-			defs(pattern({"id": "ticks", "patternUnits": "userSpaceOnUse", "width": 60 * minuteWidth, "height": 20}, [
+			defs(pattern({"id": "ticks", "patternUnits": "userSpaceOnUse", "width": 60 * minuteWidth, "height": 20, "x": -(earliest % 3600) / 60 * minuteWidth}, [
 				line({"y2": 20, "stroke": "#000"}),
 				line({"x1": minuteWidth * 15, "x2": minuteWidth * 15, "y2": 10, "stroke": "#000"}),
 				line({"x1": minuteWidth * 30, "x2": minuteWidth * 30, "y2": 10, "stroke": "#000"}),
