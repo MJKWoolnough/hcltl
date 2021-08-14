@@ -48,7 +48,7 @@ tbody td {
 	padding: 0;
 }
 
-.box {
+tbody td div {
 	background-color: currentColor;
 	position: absolute;
 	z-index: 1;
@@ -56,4 +56,7 @@ tbody td {
 	margin: 0;
 	padding: 0;
 	top: 0;
+	box-sizing: border-box;
+	border-left: 1px solid #000;
+	border-right: 1px solid #000;
 }
