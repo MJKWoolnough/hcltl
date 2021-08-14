@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -94,5 +95,5 @@ func parseTime(t string) uint64 {
 	if err != nil {
 		return 0
 	}
-	return uint64((p - 25569) * 86400)
+	return uint64(math.Round((p - 25569) * 86400))
 }
