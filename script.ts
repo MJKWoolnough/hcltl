@@ -6,6 +6,19 @@ import {data} from './data.js';
 declare const pageLoad: Promise<void>;
 
 const minuteWidth = 10,
+      colours = [
+	"#29f",
+	"#f43",
+	"#fe3",
+	"#4a5",
+	"#92b",
+	"#0bd",
+	"#f52",
+	"#cd3",
+	"#35b",
+	"#e16",
+	"#098",
+      ],
       timeline = div(),
       pad = (n: number) => {
 	const t = n + "";
@@ -23,7 +36,7 @@ const minuteWidth = 10,
 	    latest = -Infinity;
 	for (const [user, start, stop] of data) {
 		if (!rows.has(user)) {
-			const t = td();
+			const t = td({"style": {"color": colours[rows.size % colours.length]}});
 			rows.set(user, t);
 			tb.appendChild(tr([th(div(user)), t]));
 		}
