@@ -1,6 +1,7 @@
 import type {Data} from './data.js';
 import {createHTML, clearElement} from './lib/dom.js';
 import {div, table, tbody, td, th, thead, tr,} from './lib/html.js';
+import {defs, line, pattern, rect, svg} from './lib/svg.js';
 import {data} from './data.js';
 
 declare const pageLoad: Promise<void>;
@@ -54,7 +55,15 @@ const minuteWidth = 10,
 		d.appendChild(div({"title": formatTime(start) + " => " + formatTime(stop), "class": "box", "style": {"width": (minuteWidth * (b - a) / 60) + "px", "left": (minuteWidth * (a - earliest) / 60) + "px"}}));
 	}
 	createHTML(clearElement(timeline), table([
-		thead(tr([td(), td({"style": {"width": (minuteWidth * (latest - earliest) / 60) + "px"}})])), // time row
+		thead(tr([td(), td({"style": {"width": (minuteWidth * (latest - earliest) / 60) + "px"}}, svg({"width": minuteWidth * (latest - earliest) / 60, "height": 20, "viewBox": `0 0 ${minuteWidth * (latest - earliest) / 60} 20`}, [
+			defs(pattern({"id": "ticks", "patternUnits": "userSpaceOnUse", "width": 60 * minuteWidth, "height": 20}, [
+				line({"y2": 20, "stroke": "#000"}),
+				line({"x1": minuteWidth * 15, "x2": minuteWidth * 15, "y2": 10, "stroke": "#000"}),
+				line({"x1": minuteWidth * 30, "x2": minuteWidth * 30, "y2": 10, "stroke": "#000"}),
+				line({"x1": minuteWidth * 45, "x2": minuteWidth * 45, "y2": 10, "stroke": "#000"})
+			])),
+			rect({"width": "100%", "height": "100%", "fill": "url(#ticks)"}),
+		]))])),
 		tb,
 	]));
       };
