@@ -1,14 +1,15 @@
 import type {Data} from './data.js';
 import {createHTML, clearElement} from './lib/dom.js';
-import {div, table, tbody, td, th, thead, tr,} from './lib/html.js';
+import {br, button, div, h1, input, label, table, tbody, td, th, thead, tr,} from './lib/html.js';
 import {circle, defs, g, line, path, pattern, rect, svg, text, use} from './lib/svg.js';
 import {windows, shell} from './lib/windows.js';
 import {data, users} from './data.js';
 
 declare const pageLoad: Promise<void>;
 
-const minuteWidth = 20,
-      colours = [
+let minuteWidth = 20;
+
+const colours = [
 	"#29f",
 	"#f43",
 	"#fe3",
@@ -33,24 +34,28 @@ const minuteWidth = 20,
 	const d = new Date(time * 1000);
 	return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
       },
-      settings = svg({"viewBox": "0 0 20 20", "onclick": () => s.addWindow(settingsWindow)}, [
+      settings = td(svg({"viewBox": "0 0 20 20", "onclick": () => s.addWindow(settingsWindow)}, [
 	defs(path({"id": "spoke", "d": "M1,7 v2 a1,1 0,0,1 -2,0 v-2 z", "fill": "#aaa"})),
 	g({"transform": "translate(10, 10)"}, [
 		circle({"r": 5.5, "fill": "none", "stroke": "#aaa", "stroke-width": 4.5}),
 		Array.from({"length": 12}, (_, n) => n * 30).map(r => use({"href": "#spoke", "transform": `rotate(${r})`})),
 	])
-      ]),
+      ])),
       settingsWindow = windows({"window-icon": "data:image/svg+xml," + encodeURIComponent("<svg xmlns=\"http://www.w3.org/2000/svg\"" + settings.outerHTML.slice(4).replaceAll("#aaa", "#000")), "window-title": "Settings"}, [
-
+	      h1("Settings"),
+	      label({"for": "scale"}, "Timeline Scale (pixels per minute): "),
+	      input({"id": "scale", "type": "number", "min": 1, "value": minuteWidth, "onchange": function(this: HTMLInputElement) {minuteWidth = parseInt(this.value);}}),
+	      br(),
+	      button({"onclick": () => buildTimeline(data)}, "Rebuild")
       ]),
       buildTimeline = (data: Data) => {
 	const rows = new Map<number, [HTMLDivElement, HTMLDivElement, Data[]]>(),
 	      tb = tbody(),
 	      mm = (e: MouseEvent) => {
 		const offset = e.offsetX + (e.target instanceof HTMLDivElement ? e.target.offsetLeft : 0);
-		ml.style.setProperty("--x", offset + "px");
-		mt.style.setProperty("left", (offset - 2) + "");
-		mt.innerText = formatTime(earliest + 60 * offset / minuteWidth);
+		ml.style.setProperty("left", settings.offsetWidth + offset + "px");
+		mt.style.setProperty("left", (offset - 1) + "");
+		mt.innerText = formatTime(earliest + 60 * (offset+1) / minuteWidth);
 	      };
 	let earliest = Infinity,
 	    latest = -Infinity,
@@ -114,7 +119,7 @@ const minuteWidth = 20,
 	}
 	mt.style.setProperty("left", "-1000px");
 	createHTML(clearElement(timeline), table([
-		thead(tr([td(settings), th({"style": {"width": (minuteWidth * (latest - earliest) / 60) + "px"}}, [
+		thead(tr([settings, th({"style": {"width": (minuteWidth * (latest - earliest) / 60) + "px"}}, [
 			svg({"width": minuteWidth * (latest - earliest) / 60, "height": 20, "viewBox": `0 0 ${minuteWidth * (latest - earliest) / 60} 20`}, [
 				defs(pattern({"id": "ticks", "patternUnits": "userSpaceOnUse", "width": 60 * minuteWidth, "height": 20, "x": -(earliest % 3600) / 60 * minuteWidth - 2}, [
 					line({"y2": 20, "stroke": "#000"}),
