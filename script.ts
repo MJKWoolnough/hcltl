@@ -6,7 +6,7 @@ import {data} from './data.js';
 
 declare const pageLoad: Promise<void>;
 
-const minuteWidth = 10,
+const minuteWidth = 20,
       colours = [
 	"#29f",
 	"#f43",
@@ -31,7 +31,6 @@ const minuteWidth = 10,
 	const d = new Date(time * 1000);
 	return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
       },
-      roundTimes = (start: number, stop: number) => [Math.floor(start / 60) * 60, Math.ceil(stop / 60) * 60],
       buildTimeline = (data: Data) => {
 	const rows = new Map<string, [HTMLDivElement, HTMLDivElement, Data[]]>(),
 	      tb = tbody(),
@@ -79,13 +78,13 @@ const minuteWidth = 10,
 		}
 	}
 	ml.style.setProperty("--h",  numRows + "");
-	[earliest, latest] = roundTimes(earliest, latest);
+	earliest = Math.floor(earliest / 60) * 60;
+	latest = Math.ceil(latest / 60) * 60;
 	for (const [, [t, cell, d]] of rows) {
 		let rnum = 0;
 		for (const row of d) {
 			for (const [, start, stop] of row) {
-				const [a, b] = roundTimes(start, stop);
-				cell.appendChild(div({"title": formatTime(start) + " ⟶ " + formatTime(stop), "style": {"width": (minuteWidth * (b - a) / 60) + "px", "left": (minuteWidth * (a - earliest) / 60) + "px", "--row": rnum}}));
+				cell.appendChild(div({"title": formatTime(start) + " ⟶ " + formatTime(stop), "style": {"width": (minuteWidth * (stop - start) / 60) + "px", "left": (minuteWidth * (start - earliest) / 60) + "px", "--row": rnum}}));
 			}
 			rnum++;
 		}
