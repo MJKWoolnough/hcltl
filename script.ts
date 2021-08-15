@@ -1,7 +1,7 @@
 import type {Data} from './data.js';
 import {createHTML, clearElement} from './lib/dom.js';
 import {div, table, tbody, td, th, thead, tr,} from './lib/html.js';
-import {defs, line, pattern, rect, svg} from './lib/svg.js';
+import {defs, line, pattern, rect, svg, text} from './lib/svg.js';
 import {data} from './data.js';
 
 declare const pageLoad: Promise<void>;
@@ -80,6 +80,11 @@ const minuteWidth = 10,
 		}
 		t.style.setProperty("--rows", rnum+"");
 	}
+	const hours: SVGTextElement[] = [];
+	for (let hour = Math.ceil(earliest / 3600) * 3600; hour <= latest; hour += 3600) {
+		const d = new Date(hour * 1000);
+		hours.push(text({"x": (minuteWidth * (hour - earliest) / 60), "y": 15}, `${pad(d.getHours())}:00`));
+	}
 	createHTML(clearElement(timeline), table([
 		thead(tr([td(), th({"style": {"width": (minuteWidth * (latest - earliest) / 60) + "px"}}, svg({"width": minuteWidth * (latest - earliest) / 60, "height": 20, "viewBox": `0 0 ${minuteWidth * (latest - earliest) / 60} 20`}, [
 			defs(pattern({"id": "ticks", "patternUnits": "userSpaceOnUse", "width": 60 * minuteWidth, "height": 20, "x": -(earliest % 3600) / 60 * minuteWidth}, [
@@ -89,6 +94,7 @@ const minuteWidth = 10,
 				line({"x1": minuteWidth * 45, "x2": minuteWidth * 45, "y2": 10, "stroke": "#000"})
 			])),
 			rect({"width": "100%", "height": "100%", "fill": "url(#ticks)"}),
+			hours
 		]))])),
 		tb,
 	]));

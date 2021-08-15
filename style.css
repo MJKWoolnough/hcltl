@@ -3,6 +3,10 @@ html, body {
 	background-color: #fff;
 }
 
+text {
+	text-anchor: middle;
+}
+
 table {
 	table-layout: fixed;
 	border: 1px solid #000;
