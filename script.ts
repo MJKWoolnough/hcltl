@@ -22,7 +22,7 @@ const minuteWidth = 10,
       ],
       timeline = div(),
       ml = div({"id": "mouseLine"}),
-      mm = (e: MouseEvent) => ml.style.setProperty("--x", e.offsetX + (e.target instanceof HTMLDivElement ? e.target.offsetLeft : 0) + "px"),
+      mt = div({"style": {"background-color": "#fff", "border": "1px solid #000", "position": "absolute", "top": 0, "z-index": 10}}, "TIME"),
       pad = (n: number) => {
 	const t = n + "";
 	return t.length == 1 ? "0" + t : t;
@@ -34,7 +34,13 @@ const minuteWidth = 10,
       roundTimes = (start: number, stop: number) => [Math.floor(start / 60) * 60, Math.ceil(stop / 60) * 60],
       buildTimeline = (data: Data) => {
 	const rows = new Map<string, [HTMLDivElement, HTMLDivElement, Data[]]>(),
-	      tb = tbody();
+	      tb = tbody(),
+	      mm = (e: MouseEvent) => {
+		const offset = e.offsetX + (e.target instanceof HTMLDivElement ? e.target.offsetLeft : 0);
+		ml.style.setProperty("--x", offset + "px");
+		mt.style.setProperty("left", (offset - 2) + "");
+		mt.innerText = formatTime(earliest + 60 * offset / minuteWidth);
+	      };
 	let earliest = Infinity,
 	    latest = -Infinity,
 	    numRows = 0;
@@ -90,17 +96,21 @@ const minuteWidth = 10,
 		const d = new Date(hour * 1000);
 		hours.push(text({"x": (minuteWidth * (hour - earliest) / 60), "y": 15}, `${pad(d.getHours())}:00`));
 	}
+	mt.style.setProperty("left", "-1000px");
 	createHTML(clearElement(timeline), table([
-		thead(tr([td(), th({"style": {"width": (minuteWidth * (latest - earliest) / 60) + "px"}}, svg({"width": minuteWidth * (latest - earliest) / 60, "height": 20, "viewBox": `0 0 ${minuteWidth * (latest - earliest) / 60} 20`}, [
-			defs(pattern({"id": "ticks", "patternUnits": "userSpaceOnUse", "width": 60 * minuteWidth, "height": 20, "x": -(earliest % 3600) / 60 * minuteWidth}, [
-				line({"y2": 20, "stroke": "#000"}),
-				line({"x1": minuteWidth * 15, "x2": minuteWidth * 15, "y2": 10, "stroke": "#000"}),
-				line({"x1": minuteWidth * 30, "x2": minuteWidth * 30, "y2": 10, "stroke": "#000"}),
-				line({"x1": minuteWidth * 45, "x2": minuteWidth * 45, "y2": 10, "stroke": "#000"})
-			])),
-			rect({"width": "100%", "height": "100%", "fill": "url(#ticks)"}),
-			hours
-		]))])),
+		thead(tr([td(), th({"style": {"width": (minuteWidth * (latest - earliest) / 60) + "px"}}, [
+			svg({"width": minuteWidth * (latest - earliest) / 60, "height": 20, "viewBox": `0 0 ${minuteWidth * (latest - earliest) / 60} 20`}, [
+				defs(pattern({"id": "ticks", "patternUnits": "userSpaceOnUse", "width": 60 * minuteWidth, "height": 20, "x": -(earliest % 3600) / 60 * minuteWidth}, [
+					line({"y2": 20, "stroke": "#000"}),
+					line({"x1": minuteWidth * 15, "x2": minuteWidth * 15, "y2": 10, "stroke": "#000"}),
+					line({"x1": minuteWidth * 30, "x2": minuteWidth * 30, "y2": 10, "stroke": "#000"}),
+					line({"x1": minuteWidth * 45, "x2": minuteWidth * 45, "y2": 10, "stroke": "#000"})
+				])),
+				rect({"width": "100%", "height": "100%", "fill": "url(#ticks)"}),
+				hours,
+			]),
+			mt
+		])])),
 		tb,
 	]));
       };
