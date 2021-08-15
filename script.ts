@@ -93,14 +93,19 @@ const minuteWidth = 20,
 	earliest = Math.floor(earliest / 60) * 60;
 	latest = Math.ceil(latest / 60) * 60;
 	for (const [, [t, cell, d]] of rows) {
-		let rnum = 0;
+		let rnum = 0,
+		    calls = 0,
+		    secs = 0;
 		for (const row of d) {
 			for (const [, start, stop] of row) {
 				cell.appendChild(div({"title": formatTime(start) + " ⟶ " + formatTime(stop), "style": {"width": (minuteWidth * (stop - start) / 60 + 1) + "px", "left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "--row": rnum}}));
+				calls++;
+				secs += stop - start;
 			}
 			rnum++;
 		}
 		t.style.setProperty("--rows", rnum+"");
+		t.setAttribute("title", `Total Calls: ${calls}\nTotal Call Time: ${Math.floor(secs / 3600)}:${pad(Math.floor((secs % 3600) / 60))}:${pad(secs % 60)}`);
 	}
 	const hours: SVGTextElement[] = [];
 	for (let hour = Math.ceil(earliest / 3600) * 3600; hour <= latest; hour += 3600) {
