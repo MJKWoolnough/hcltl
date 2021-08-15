@@ -1,7 +1,7 @@
 import type {Data} from './data.js';
 import {createHTML, clearElement} from './lib/dom.js';
 import {div, table, tbody, td, th, thead, tr,} from './lib/html.js';
-import {defs, line, pattern, rect, svg, text} from './lib/svg.js';
+import {circle, defs, g, line, path, pattern, rect, svg, text, use} from './lib/svg.js';
 import {data} from './data.js';
 
 declare const pageLoad: Promise<void>;
@@ -31,6 +31,14 @@ const minuteWidth = 20,
 	const d = new Date(time * 1000);
 	return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
       },
+      settings = svg({"viewBox": "0 0 20 20", "onclick": () => {
+      }}, [
+	defs(path({"id": "spoke", "d": "M1,7 v2 a1,1 0,0,1 -2,0 v-2 z", "fill": "#aaa"})),
+	g({"transform": "translate(10, 10)"}, [
+		circle({"r": 5.5, "fill": "none", "stroke": "#aaa", "stroke-width": 4.5}),
+		Array.from({"length": 12}, (_, n) => n * 30).map(r => use({"href": "#spoke", "transform": `rotate(${r})`})),
+	])
+      ]),
       buildTimeline = (data: Data) => {
 	const rows = new Map<string, [HTMLDivElement, HTMLDivElement, Data[]]>(),
 	      tb = tbody(),
@@ -97,7 +105,7 @@ const minuteWidth = 20,
 	}
 	mt.style.setProperty("left", "-1000px");
 	createHTML(clearElement(timeline), table([
-		thead(tr([td(), th({"style": {"width": (minuteWidth * (latest - earliest) / 60) + "px"}}, [
+		thead(tr([td(settings), th({"style": {"width": (minuteWidth * (latest - earliest) / 60) + "px"}}, [
 			svg({"width": minuteWidth * (latest - earliest) / 60, "height": 20, "viewBox": `0 0 ${minuteWidth * (latest - earliest) / 60} 20`}, [
 				defs(pattern({"id": "ticks", "patternUnits": "userSpaceOnUse", "width": 60 * minuteWidth, "height": 20, "x": -(earliest % 3600) / 60 * minuteWidth - 2}, [
 					line({"y2": 20, "stroke": "#000"}),
