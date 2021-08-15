@@ -42,7 +42,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		Array.from({"length": 12}, (_, n) => n * 30).map(r => use({"href": "#spoke", "transform": `rotate(${r})`})),
 	])
       ])),
-      settingsWindow = windows({"window-icon": "data:image/svg+xml," + encodeURIComponent("<svg xmlns=\"http://www.w3.org/2000/svg\"" + settings.outerHTML.slice(4).replaceAll("#aaa", "#000")), "window-title": "Settings"}, [
+      settingsWindow = windows({"window-icon": "data:image/svg+xml," + encodeURIComponent("<svg xmlns=\"http://www.w3.org/2000/svg\"" + settings.outerHTML.slice(8, -5).replaceAll("#aaa", "#000")), "window-title": "Settings"}, [
 	      h1("Settings"),
 	      label({"for": "scale"}, "Timeline Scale (pixels per minute): "),
 	      input({"id": "scale", "type": "number", "min": 1, "value": minuteWidth, "onchange": function(this: HTMLInputElement) {minuteWidth = parseInt(this.value);}}),
