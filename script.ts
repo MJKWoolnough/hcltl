@@ -84,7 +84,7 @@ const minuteWidth = 20,
 		let rnum = 0;
 		for (const row of d) {
 			for (const [, start, stop] of row) {
-				cell.appendChild(div({"title": formatTime(start) + " ⟶ " + formatTime(stop), "style": {"width": (minuteWidth * (stop - start) / 60) + "px", "left": (minuteWidth * (start - earliest) / 60) + "px", "--row": rnum}}));
+				cell.appendChild(div({"title": formatTime(start) + " ⟶ " + formatTime(stop), "style": {"width": (minuteWidth * (stop - start) / 60 + 1) + "px", "left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "--row": rnum}}));
 			}
 			rnum++;
 		}
@@ -99,7 +99,7 @@ const minuteWidth = 20,
 	createHTML(clearElement(timeline), table([
 		thead(tr([td(), th({"style": {"width": (minuteWidth * (latest - earliest) / 60) + "px"}}, [
 			svg({"width": minuteWidth * (latest - earliest) / 60, "height": 20, "viewBox": `0 0 ${minuteWidth * (latest - earliest) / 60} 20`}, [
-				defs(pattern({"id": "ticks", "patternUnits": "userSpaceOnUse", "width": 60 * minuteWidth, "height": 20, "x": -(earliest % 3600) / 60 * minuteWidth}, [
+				defs(pattern({"id": "ticks", "patternUnits": "userSpaceOnUse", "width": 60 * minuteWidth, "height": 20, "x": -(earliest % 3600) / 60 * minuteWidth - 2}, [
 					line({"y2": 20, "stroke": "#000"}),
 					line({"x1": minuteWidth * 15, "x2": minuteWidth * 15, "y2": 10, "stroke": "#000"}),
 					line({"x1": minuteWidth * 30, "x2": minuteWidth * 30, "y2": 10, "stroke": "#000"}),
