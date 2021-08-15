@@ -9,7 +9,8 @@ declare const pageLoad: Promise<void>;
 
 let minuteWidth = 20;
 
-const colours = [
+const userFilter = Array.from({"length": users.length}, () => true),
+      colours = [
 	"#29f",
 	"#f43",
 	"#fe3",
@@ -46,6 +47,11 @@ const colours = [
 	      label({"for": "scale"}, "Timeline Scale (pixels per minute): "),
 	      input({"id": "scale", "type": "number", "min": 1, "value": minuteWidth, "onchange": function(this: HTMLInputElement) {minuteWidth = parseInt(this.value);}}),
 	      br(),
+	      users.map((user, n) => [
+		label({"for": `user_${n}`}, `${user}: `),
+		input({"type": "checkbox", "checked": true, "onclick": function(this: HTMLInputElement) {userFilter[n] = this.checked}}),
+		br(),
+	      ]),
 	      button({"onclick": () => buildTimeline(data)}, "Rebuild")
       ]),
       buildTimeline = (data: Data) => {
@@ -62,6 +68,9 @@ const colours = [
 	    numRows = 0;
 	for (const row of data) {
 		const [user, start, stop] = row;
+		if (!userFilter[user]) {
+			continue;
+		}
 		let d: Data[],
 		    set = false;
 		if (!rows.has(user)) {
