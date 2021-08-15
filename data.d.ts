@@ -1,2 +1,2 @@
-export type Data = [string, number, number][];
-export const data: Data;
+export type Data = [number, number, number][];
+export const data: Data, users: string[];

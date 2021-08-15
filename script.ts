@@ -3,7 +3,7 @@ import {createHTML, clearElement} from './lib/dom.js';
 import {div, table, tbody, td, th, thead, tr,} from './lib/html.js';
 import {circle, defs, g, line, path, pattern, rect, svg, text, use} from './lib/svg.js';
 import {windows, shell} from './lib/windows.js';
-import {data} from './data.js';
+import {data, users} from './data.js';
 
 declare const pageLoad: Promise<void>;
 
@@ -44,7 +44,7 @@ const minuteWidth = 20,
 
       ]),
       buildTimeline = (data: Data) => {
-	const rows = new Map<string, [HTMLDivElement, HTMLDivElement, Data[]]>(),
+	const rows = new Map<number, [HTMLDivElement, HTMLDivElement, Data[]]>(),
 	      tb = tbody(),
 	      mm = (e: MouseEvent) => {
 		const offset = e.offsetX + (e.target instanceof HTMLDivElement ? e.target.offsetLeft : 0);
@@ -57,10 +57,10 @@ const minuteWidth = 20,
 	    numRows = 0;
 	for (const row of data) {
 		const [user, start, stop] = row;
-		let d: [string, number, number][][],
+		let d: Data[],
 		    set = false;
 		if (!rows.has(user)) {
-			const h = div(user),
+			const h = div(users[user]),
 			      t = td({"style": {"color": colours[rows.size % colours.length]}, "onmousemove": mm});
 			rows.set(user, [h, t, d = []]);
 			tb.appendChild(tr([th(h), t]));

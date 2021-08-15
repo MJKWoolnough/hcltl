@@ -23,6 +23,8 @@ func run() error {
 	if len(os.Args) < 2 {
 		return fmt.Errorf("usage: %s input", os.Args[0])
 	}
+	users := make([]string, 0)
+	userIDs := make(map[string]uint64)
 	wb, err := xls.Open(os.Args[1], "utf-8")
 	if err != nil {
 		return err
@@ -84,7 +86,21 @@ func run() error {
 		} else {
 			f.WriteString(",")
 		}
-		fmt.Fprintf(f, "[%q,%d,%d]", username, startTime, endTime)
+		uname := strings.ToUpper(username)
+		userID, ok := userIDs[uname]
+		if !ok {
+			userID = uint64(len(userIDs))
+			userIDs[uname] = userID
+			users = append(users, username)
+		}
+		fmt.Fprintf(f, "[%d,%d,%d]", userID, startTime, endTime)
+	}
+	f.WriteString("], users = [")
+	for n, username := range users {
+		if n > 0 {
+			f.WriteString(",")
+		}
+		fmt.Fprintf(f, "%q", username)
 	}
 	f.WriteString("];")
 	f.Close()
