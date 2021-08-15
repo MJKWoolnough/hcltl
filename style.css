@@ -15,13 +15,24 @@ table {
 }
 
 td, th {
-	border: 1px solid #000;
 	padding: 0;
 	margin: 0;
 }
 
 thead td {
 	width: 5em;
+	border: 1px solid #000;
+}
+
+thead th {
+	position: sticky;
+	top: 0;
+	z-index: 2;
+}
+
+thead svg {
+	background-color: #fff;
+	border-bottom: 1px solid #000;
 }
 
 tbody th {
@@ -31,7 +42,7 @@ tbody th {
 }
 
 tbody th div {
-	z-index: 3;
+	z-index: 4;
 	position: sticky;
 	left: 0;
 	background-color: #ff0;
