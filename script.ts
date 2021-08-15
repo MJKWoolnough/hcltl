@@ -31,15 +31,35 @@ const minuteWidth = 10,
       },
       roundTimes = (start: number, stop: number) => [Math.floor(start / 60) * 60, Math.ceil(stop / 60) * 60],
       buildTimeline = (data: Data) => {
-	const rows = new Map<string, HTMLDivElement>(),
+	const rows = new Map<string, [HTMLDivElement, HTMLDivElement, Data[]]>(),
 	      tb = tbody();
 	let earliest = Infinity,
 	    latest = -Infinity;
-	for (const [user, start, stop] of data) {
+	for (const row of data) {
+		const [user, start, stop] = row;
+		let d: [string, number, number][][],
+		    set = false;
 		if (!rows.has(user)) {
-			const t = td({"style": {"color": colours[rows.size % colours.length]}});
-			rows.set(user, t);
-			tb.appendChild(tr([th(div(user)), t]));
+			const h = div(user),
+			      t = td({"style": {"color": colours[rows.size % colours.length]}});
+			rows.set(user, [h, t, d = []]);
+			tb.appendChild(tr([th(h), t]));
+		} else {
+			[, , d] = rows.get(user)!;
+		}
+		Loop:
+		for (const r of d) {
+			for (const [, cstart, cstop] of r) {
+				if (start < cstop && stop > cstart) {
+					continue Loop
+				}
+			}
+			set = true;
+			r.push(row);
+			break;
+		}
+		if (!set) {
+			d.push([row])
 		}
 		if (start < earliest) {
 			earliest = start;
@@ -49,10 +69,16 @@ const minuteWidth = 10,
 		}
 	}
 	[earliest, latest] = roundTimes(earliest, latest);
-	for (const [user, start, stop] of data) {
-		const d = rows.get(user)!,
-		      [a, b] = roundTimes(start, stop);
-		d.appendChild(div({"title": formatTime(start) + " ⟶ " + formatTime(stop), "style": {"width": (minuteWidth * (b - a) / 60) + "px", "left": (minuteWidth * (a - earliest) / 60) + "px"}}));
+	for (const [, [t, cell, d]] of rows) {
+		let rnum = 0;
+		for (const row of d) {
+			for (const [, start, stop] of row) {
+				const [a, b] = roundTimes(start, stop);
+				cell.appendChild(div({"title": formatTime(start) + " ⟶ " + formatTime(stop), "style": {"width": (minuteWidth * (b - a) / 60) + "px", "left": (minuteWidth * (a - earliest) / 60) + "px", "--row": rnum}}));
+			}
+			rnum++;
+		}
+		t.style.setProperty("--rows", rnum+"");
 	}
 	createHTML(clearElement(timeline), table([
 		thead(tr([td(), td({"style": {"width": (minuteWidth * (latest - earliest) / 60) + "px"}}, svg({"width": minuteWidth * (latest - earliest) / 60, "height": 20, "viewBox": `0 0 ${minuteWidth * (latest - earliest) / 60} 20`}, [
