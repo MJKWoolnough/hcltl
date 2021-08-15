@@ -59,9 +59,13 @@ func run() error {
 	if user == -1 {
 		return errors.New("no 'User' column")
 	}
-	f := os.Stdout
+	f, err := os.Create(os.Args[1] + ".html")
+	if err != nil {
+		return err
+	}
 	first := true
-	f.WriteString("export const data = [")
+	f.WriteString(htmlStart)
+	f.WriteString(jsStart)
 	for i := uint16(1); i < ws.MaxRow; i++ {
 		row := ws.Row(int(i))
 		username := strings.TrimSpace(row.Col(user))
@@ -95,14 +99,15 @@ func run() error {
 		}
 		fmt.Fprintf(f, "[%d,%d,%d]", userID, startTime, endTime)
 	}
-	f.WriteString("], users = [")
+	f.WriteString(jsMid)
 	for n, username := range users {
 		if n > 0 {
 			f.WriteString(",")
 		}
 		fmt.Fprintf(f, "%q", username)
 	}
-	f.WriteString("];")
+	f.WriteString(jsEnd)
+	f.WriteString(htmlEnd)
 	f.Close()
 	return nil
 }
