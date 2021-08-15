@@ -52,7 +52,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	      br(),
 	      users.map((user, n) => [
 		label({"for": `user_${n}`}, `${user}: `),
-		input({"type": "checkbox", "checked": true, "onclick": function(this: HTMLInputElement) {userFilter[n] = this.checked}}),
+		input({"type": "checkbox", "id": `user_${n}`, "checked": true, "onclick": function(this: HTMLInputElement) {userFilter[n] = this.checked}}),
 		br(),
 	      ]),
 	      button({"onclick": () => buildTimeline(data)}, "Rebuild")
