@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [ ! -e gedcom.js ] || [ $(stat -c %s gedcom.js) -ne 36 ]; then
+if [ ! -e data.js ] || [ $(stat -c %s data.js) -ne 36 ]; then
 	echo "export const data = [], users = [];" > data.js;
 fi;
 
