@@ -95,6 +95,10 @@ tbody tr:nth-child(2n) {
 	height: calc(2em * var(--h) + 21px);
 }
 
+windows-shell {
+	height: 0;
+}
+
 windows-window {
 	z-index: 20;
 	position: fixed;
