@@ -1,6 +1,6 @@
 import type {Data} from './data.js';
 import {createHTML, clearElement} from './lib/dom.js';
-import {br, button, div, h1, input, label, table, tbody, td, th, thead, tr,} from './lib/html.js';
+import {br, button, div, h1, input, label, table, tbody, td, th, thead, tr} from './lib/html.js';
 import {circle, defs, g, line, path, pattern, rect, svg, text, use} from './lib/svg.js';
 import {windows, shell} from './lib/windows.js';
 import {data, users} from './data.js';
