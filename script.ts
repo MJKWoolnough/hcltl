@@ -21,6 +21,8 @@ const minuteWidth = 10,
 	"#098",
       ],
       timeline = div(),
+      ml = div({"id": "mouseLine"}),
+      mm = (e: MouseEvent) => ml.style.setProperty("--x", e.offsetX + (e.target instanceof HTMLDivElement ? e.target.offsetLeft : 0) + "px"),
       pad = (n: number) => {
 	const t = n + "";
 	return t.length == 1 ? "0" + t : t;
@@ -34,14 +36,15 @@ const minuteWidth = 10,
 	const rows = new Map<string, [HTMLDivElement, HTMLDivElement, Data[]]>(),
 	      tb = tbody();
 	let earliest = Infinity,
-	    latest = -Infinity;
+	    latest = -Infinity,
+	    numRows = 0;
 	for (const row of data) {
 		const [user, start, stop] = row;
 		let d: [string, number, number][][],
 		    set = false;
 		if (!rows.has(user)) {
 			const h = div(user),
-			      t = td({"style": {"color": colours[rows.size % colours.length]}});
+			      t = td({"style": {"color": colours[rows.size % colours.length]}, "onmousemove": mm});
 			rows.set(user, [h, t, d = []]);
 			tb.appendChild(tr([th(h), t]));
 		} else {
@@ -60,6 +63,7 @@ const minuteWidth = 10,
 		}
 		if (!set) {
 			d.push([row])
+			numRows++;
 		}
 		if (start < earliest) {
 			earliest = start;
@@ -68,6 +72,7 @@ const minuteWidth = 10,
 			latest = stop;
 		}
 	}
+	ml.style.setProperty("--h",  numRows + "");
 	[earliest, latest] = roundTimes(earliest, latest);
 	for (const [, [t, cell, d]] of rows) {
 		let rnum = 0;
@@ -103,7 +108,8 @@ const minuteWidth = 10,
 pageLoad.then(() => {
 	createHTML(clearElement(document.body), [
 		div(),
-		timeline
+		timeline,
+		ml
 	]);
 	buildTimeline(data);
 });

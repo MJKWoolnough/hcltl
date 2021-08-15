@@ -82,3 +82,12 @@ tbody td div {
 tbody tr:nth-child(2n) {
 	background-color: #ddd;
 }
+
+#mouseLine {
+	border-left: 1px solid #f00;
+	position: absolute;
+	top: 1px;
+	left: calc(5em + var(--x));
+	z-index: 0;
+	height: calc(2em * var(--h) + 21px);
+}
