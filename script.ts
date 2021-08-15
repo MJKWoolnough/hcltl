@@ -2,6 +2,7 @@ import type {Data} from './data.js';
 import {createHTML, clearElement} from './lib/dom.js';
 import {div, table, tbody, td, th, thead, tr,} from './lib/html.js';
 import {circle, defs, g, line, path, pattern, rect, svg, text, use} from './lib/svg.js';
+import {windows, shell} from './lib/windows.js';
 import {data} from './data.js';
 
 declare const pageLoad: Promise<void>;
@@ -20,9 +21,10 @@ const minuteWidth = 20,
 	"#e16",
 	"#098",
       ],
-      timeline = div(),
       ml = div({"id": "mouseLine"}),
       mt = div({"style": {"background-color": "#fff", "border": "1px solid #000", "position": "absolute", "top": 0, "z-index": 10}}, "TIME"),
+      timeline = div(),
+      s = shell(),
       pad = (n: number) => {
 	const t = n + "";
 	return t.length == 1 ? "0" + t : t;
@@ -31,13 +33,15 @@ const minuteWidth = 20,
 	const d = new Date(time * 1000);
 	return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
       },
-      settings = svg({"viewBox": "0 0 20 20", "onclick": () => {
-      }}, [
+      settings = svg({"viewBox": "0 0 20 20", "onclick": () => s.addWindow(settingsWindow)}, [
 	defs(path({"id": "spoke", "d": "M1,7 v2 a1,1 0,0,1 -2,0 v-2 z", "fill": "#aaa"})),
 	g({"transform": "translate(10, 10)"}, [
 		circle({"r": 5.5, "fill": "none", "stroke": "#aaa", "stroke-width": 4.5}),
 		Array.from({"length": 12}, (_, n) => n * 30).map(r => use({"href": "#spoke", "transform": `rotate(${r})`})),
 	])
+      ]),
+      settingsWindow = windows({"window-icon": "data:image/svg+xml," + encodeURIComponent("<svg xmlns=\"http://www.w3.org/2000/svg\"" + settings.outerHTML.slice(4).replaceAll("#aaa", "#000")), "window-title": "Settings"}, [
+
       ]),
       buildTimeline = (data: Data) => {
 	const rows = new Map<string, [HTMLDivElement, HTMLDivElement, Data[]]>(),
@@ -124,9 +128,9 @@ const minuteWidth = 20,
 
 pageLoad.then(() => {
 	createHTML(clearElement(document.body), [
-		div(),
 		timeline,
-		ml
+		ml,
+		s,
 	]);
 	buildTimeline(data);
 });

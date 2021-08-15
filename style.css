@@ -97,3 +97,8 @@ tbody tr:nth-child(2n) {
 	z-index: 0;
 	height: calc(2em * var(--h) + 21px);
 }
+
+windows-window {
+	z-index: 20;
+	position: fixed;
+}
