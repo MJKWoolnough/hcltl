@@ -1,3 +1,4 @@
+// HCLTL converts a formatted XLS file into a timeline
 package main
 
 import (
