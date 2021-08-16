@@ -1,5 +1,5 @@
 // HCLTL converts a formatted XLS file into a timeline
-package main
+package main // import "vimagination.zapto.org/hcltl"
 
 import (
 	"errors"
