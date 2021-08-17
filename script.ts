@@ -58,7 +58,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	      button({"onclick": () => buildTimeline(data)}, "Rebuild")
       ]),
       buildTimeline = (data: Data) => {
-	const rows = new Map<number, [HTMLDivElement, HTMLDivElement, Data[]]>(),
+	const rows = new Map<number, [HTMLDivElement, HTMLDivElement, Data[], [number, number]]>(),
 	      tb = tbody(),
 	      mm = (e: MouseEvent) => {
 		const offset = e.offsetX + (e.target instanceof HTMLDivElement ? e.target.offsetLeft : 0);
@@ -76,14 +76,22 @@ const userFilter = Array.from({"length": users.length}, () => true),
 			continue;
 		}
 		let d: Data[],
-		    set = false;
+		    set = false,
+		    cc: [number, number];
 		if (!rows.has(user)) {
 			const h = div(users[user]),
 			      t = td({"style": {"color": colours[rows.size % colours.length]}, "onmousemove": mm});
-			rows.set(user, [h, t, d = []]);
+			rows.set(user, [h, t, d = [], cc = [-1, 0]]);
 			tb.appendChild(tr([th(h), t]));
 		} else {
-			[, , d] = rows.get(user)!;
+			[, , d, cc] = rows.get(user)!;
+		}
+		if (start > cc[0]) {
+			cc[1] += stop - start;
+			cc[0] = stop;
+		} else if (stop > cc[0]) {
+			cc[1] += stop - cc[0];
+			cc[0] = stop;
 		}
 		DLoop:
 		for (const r of d) {
@@ -123,7 +131,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	}
 	earliest = Math.floor(earliest / 60) * 60;
 	latest = Math.ceil(latest / 60) * 60;
-	for (const [, [t, cell, d]] of rows) {
+	for (const [, [t, cell, d, [, cc]]] of rows) {
 		let rnum = 0,
 		    calls = 0,
 		    secs = 0;
@@ -135,7 +143,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 			}
 			rnum++;
 		}
-		t.setAttribute("title", `Total Calls: ${calls}\nTotal Call Time: ${Math.floor(secs / 3600)}:${pad(Math.floor((secs % 3600) / 60))}:${pad(secs % 60)}`);
+		t.setAttribute("title", `Total Calls: ${calls}\nTotal Call Time: ${Math.floor(secs / 3600)}:${pad(Math.floor((secs % 3600) / 60))}:${pad(secs % 60)}\nNon-concurrent Call Time: ${Math.floor(cc / 3600)}:${pad(Math.floor((cc % 3600) / 60))}:${pad(cc % 60)}`)
 		maxRows = Math.max(d.length, maxRows);
 	}
 	ml.style.setProperty("--h",  (maxRows * rows.size + loggedRows.length) + "");
