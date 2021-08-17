@@ -41,6 +41,7 @@ func run() error {
 	accepted := -1
 	ended := -1
 	user := -1
+	logged := -1
 	for i := header.FirstCol(); i < header.LastCol(); i++ {
 		switch strings.ToUpper(header.Col(i)) {
 		case "ACCEPTED":
@@ -49,6 +50,8 @@ func run() error {
 			ended = i
 		case "USER":
 			user = i
+		case "DATE/TIME":
+			logged = i
 		}
 	}
 	if accepted == -1 {
@@ -59,6 +62,9 @@ func run() error {
 	}
 	if user == -1 {
 		return errors.New("no 'User' column")
+	}
+	if logged == -1 {
+		return errors.New("no 'Date/Time' column")
 	}
 	f, err := os.Create(os.Args[1] + ".html")
 	if err != nil {
@@ -83,7 +89,12 @@ func run() error {
 			continue
 		}
 		endTime := parseTime(t)
-		if startTime == 0 || endTime == 0 || endTime < startTime {
+		t = row.Col(logged)
+		if t == "" {
+			continue
+		}
+		logTime := parseTime(t)
+		if startTime == 0 || endTime == 0 || logTime == 0 || endTime < startTime || startTime < logTime {
 			continue
 		}
 		if first {
@@ -98,7 +109,7 @@ func run() error {
 			userIDs[uname] = userID
 			users = append(users, username)
 		}
-		fmt.Fprintf(f, "[%d,%d,%d]", userID, startTime, endTime)
+		fmt.Fprintf(f, "[%d,%d,%d,%d]", userID, startTime, endTime, logTime)
 	}
 	f.WriteString(jsMid)
 	for n, username := range users {
