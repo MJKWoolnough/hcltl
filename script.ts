@@ -168,6 +168,8 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	]));
       };
 
+data.sort(([,a], [, b]) => a - b);
+
 pageLoad.then(() => {
 	createHTML(clearElement(document.body), [
 		timeline,
