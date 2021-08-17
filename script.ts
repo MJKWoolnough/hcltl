@@ -68,7 +68,8 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	      };
 	let earliest = Infinity,
 	    latest = -Infinity,
-	    numRows = 0;
+	    numRows = 0,
+	    maxRows = 0;
 	for (const row of data) {
 		const [user, start, stop] = row;
 		if (!userFilter[user]) {
@@ -121,9 +122,10 @@ const userFilter = Array.from({"length": users.length}, () => true),
 			}
 			rnum++;
 		}
-		t.style.setProperty("--rows", rnum+"");
 		t.setAttribute("title", `Total Calls: ${calls}\nTotal Call Time: ${Math.floor(secs / 3600)}:${pad(Math.floor((secs % 3600) / 60))}:${pad(secs % 60)}`);
+		maxRows = Math.max(d.length, maxRows);
 	}
+	document.body.style.setProperty("--rows", maxRows+"");
 	const hours: SVGTextElement[] = [];
 	for (let hour = Math.ceil(earliest / 3600) * 3600; hour <= latest; hour += 3600) {
 		const d = new Date(hour * 1000);
