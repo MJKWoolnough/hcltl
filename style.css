@@ -43,22 +43,27 @@ thead th svg {
 	border-bottom: 1px solid #000;
 }
 
-tbody th {
+tr :first-child {
 	position: sticky;
 	left: 0;
-	z-index: 2;
+	z-index: 4;
 }
 
-tbody th div {
-	z-index: 4;
-	position: sticky;
-	left: 0;
-	background-color: #ff0;
+thead td div {
+	height: 20px;
+	background-color: #fff;
+}
+
+tr :first-child div {
 	border-right: 1px solid #000;
-	height: calc(2em * var(--rows));
 	display: flex;
 	justify-content: center;
 	align-items: center;
+}
+
+tbody th div {
+	background-color: #ff0;
+	height: calc(2em * var(--rows));
 }
 
 tbody tr:nth-child(2n) th div{
