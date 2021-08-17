@@ -65,13 +65,13 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		ml.style.setProperty("left", settings.offsetWidth + offset + "px");
 		mt.style.setProperty("left", (offset - 1) + "");
 		mt.innerText = formatTime(earliest + 60 * (offset+1) / minuteWidth);
-	      };
+	      },
+	      loggedRows: Data[] = [];
 	let earliest = Infinity,
 	    latest = -Infinity,
-	    numRows = 0,
 	    maxRows = 0;
 	for (const row of data) {
-		const [user, start, stop] = row;
+		const [user, start, stop, logged] = row;
 		if (!userFilter[user]) {
 			continue;
 		}
@@ -85,11 +85,11 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		} else {
 			[, , d] = rows.get(user)!;
 		}
-		Loop:
+		DLoop:
 		for (const r of d) {
 			for (const [, cstart, cstop] of r) {
 				if (start < cstop && stop > cstart) {
-					continue Loop
+					continue DLoop
 				}
 			}
 			set = true;
@@ -98,16 +98,29 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		}
 		if (!set) {
 			d.push([row])
-			numRows++;
+			set = false;
 		}
-		if (start < earliest) {
+		LLoop:
+		for (const r of loggedRows) {
+			for (const [, cstop,, cstart] of r) {
+				if (logged < cstop && start > cstart) {
+					continue LLoop
+				}
+			}
+			set = true;
+			r.push(row);
+			break;
+		}
+		if (!set) {
+			loggedRows.push([row])
+		}
+		if (logged < earliest) {
 			earliest = start;
 		}
 		if (stop > latest) {
 			latest = stop;
 		}
 	}
-	ml.style.setProperty("--h",  numRows + "");
 	earliest = Math.floor(earliest / 60) * 60;
 	latest = Math.ceil(latest / 60) * 60;
 	for (const [, [t, cell, d]] of rows) {
@@ -125,7 +138,12 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		t.setAttribute("title", `Total Calls: ${calls}\nTotal Call Time: ${Math.floor(secs / 3600)}:${pad(Math.floor((secs % 3600) / 60))}:${pad(secs % 60)}`);
 		maxRows = Math.max(d.length, maxRows);
 	}
+	ml.style.setProperty("--h",  (maxRows * rows.size + loggedRows.length) + "");
 	document.body.style.setProperty("--rows", maxRows+"");
+	tb.appendChild(tr([
+		th({"style": {"--rows": loggedRows.length}}, div()),
+		td({"onmousemove": mm}, loggedRows.map((row, n) => row.map(([user, start,, logged]) => div({"title": `${users[user]}\n${formatTime(logged)} ⟶  ${formatTime(start)}`, "style": {"width": (minuteWidth * (start - logged) / 60 + 1) + "px", "left": (minuteWidth * (logged - earliest) / 60 - 2) + "px" , "--row": n}}))))
+	]));
 	const hours: SVGTextElement[] = [];
 	for (let hour = Math.ceil(earliest / 3600) * 3600; hour <= latest; hour += 3600) {
 		const d = new Date(hour * 1000);
