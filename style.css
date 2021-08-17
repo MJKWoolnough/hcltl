@@ -43,7 +43,7 @@ thead th svg {
 	border-bottom: 1px solid #000;
 }
 
-tr :first-child {
+tr > :first-child {
 	position: sticky;
 	left: 0;
 	z-index: 4;
@@ -54,7 +54,7 @@ thead td div {
 	background-color: #fff;
 }
 
-tr :first-child div {
+tr > :first-child div {
 	border-right: 1px solid #000;
 	display: flex;
 	justify-content: center;
