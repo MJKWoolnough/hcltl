@@ -24,7 +24,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	"#098",
       ],
       ml = div({"id": "mouseLine"}),
-      mt = div({"style": {"background-color": "#fff", "border": "1px solid #000", "position": "absolute", "top": 0, "z-index": 10}}, "TIME"),
+      mt = div({"style": {"background-color": "#fff", "border": "1px solid #000", "position": "absolute", "top": 0, "z-index": 10}}),
       timeline = div(),
       s = shell(),
       pad = (n: number) => {
