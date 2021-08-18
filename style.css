@@ -107,4 +107,5 @@ windows-shell {
 windows-window {
 	z-index: 20;
 	position: fixed;
+	outline: none;
 }
