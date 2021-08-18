@@ -148,10 +148,10 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	}
 	ml.style.setProperty("--h",  (maxRows * rows.size + loggedRows.length) + "");
 	document.body.style.setProperty("--rows", maxRows+"");
-	tb.appendChild(tr([
+	tb.insertBefore(tr([
 		th({"style": {"--rows": loggedRows.length}}, div()),
 		td({"onmousemove": mm}, loggedRows.map((row, n) => row.map(([user, start,, logged]) => div({"title": `${users[user]}\n${formatTime(logged)} ⟶  ${formatTime(start)}`, "style": {"width": (minuteWidth * (start - logged) / 60 + 1) + "px", "left": (minuteWidth * (logged - earliest) / 60 - 2) + "px" , "--row": n}}))))
-	]));
+	]), tb.firstChild);
 	const hours: SVGTextElement[] = [];
 	for (let hour = Math.ceil(earliest / 3600) * 3600; hour <= latest; hour += 3600) {
 		const d = new Date(hour * 1000);
