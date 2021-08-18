@@ -74,7 +74,8 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		mt.style.setProperty("left", (offset - 1) + "");
 		mt.innerText = formatTime(earliest + 60 * (offset+1) / minuteWidth);
 	      },
-	      loggedRows: Data[] = [];
+	      loggedRows: Data[] = [],
+	      hours: SVGTextElement[] = [];
 	let earliest = Infinity,
 	    latest = -Infinity,
 	    maxRows = 0;
@@ -160,7 +161,6 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		th({"style": {"--rows": loggedRows.length}}, div()),
 		td({"onmousemove": mm}, loggedRows.map((row, n) => row.map(([user, start,, logged]) => div({"title": `${users[user]}\n${formatTime(logged)} ⟶  ${formatTime(start)}`, "style": {"width": (minuteWidth * (start - logged) / 60 + 1) + "px", "left": (minuteWidth * (logged - earliest) / 60 - 2) + "px" , "--row": n}}))))
 	]), tb.firstChild);
-	const hours: SVGTextElement[] = [];
 	for (let hour = Math.ceil(earliest / 3600) * 3600; hour <= latest; hour += 3600) {
 		const d = new Date(hour * 1000);
 		hours.push(text({"x": (minuteWidth * (hour - earliest) / 60), "y": 15}, `${pad(d.getHours())}:00`));
