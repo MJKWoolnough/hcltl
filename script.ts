@@ -8,7 +8,6 @@ import {data, users} from './data.js';
 declare const pageLoad: Promise<void>;
 
 let minuteWidth = 20;
-
 const userFilter = Array.from({"length": users.length}, () => true),
       colours = [
 	"#29f",
@@ -68,13 +67,13 @@ const userFilter = Array.from({"length": users.length}, () => true),
       buildTimeline = (data: Data) => {
 	const rows = new Map<number, [HTMLDivElement, HTMLDivElement, Data[], [number, number]]>(),
 	      tb = tbody(),
+	      loggedRows: Data[] = [],
 	      mm = (e: MouseEvent) => {
 		const offset = e.offsetX + (e.target instanceof HTMLDivElement ? e.target.offsetLeft : 0);
 		ml.style.setProperty("left", settings.offsetWidth + offset + "px");
 		mt.style.setProperty("left", (offset - 1) + "");
 		mt.innerText = formatTime(earliest + 60 * (offset+1) / minuteWidth);
 	      },
-	      loggedRows: Data[] = [],
 	      hours: SVGTextElement[] = [];
 	let earliest = Infinity,
 	    latest = -Infinity,
