@@ -71,8 +71,7 @@ func run() error {
 		return err
 	}
 	first := true
-	f.WriteString(htmlStart)
-	f.WriteString(jsStart)
+	f.WriteString(start)
 	for i := uint16(1); i < ws.MaxRow; i++ {
 		row := ws.Row(int(i))
 		username := strings.TrimSpace(row.Col(user))
@@ -111,15 +110,14 @@ func run() error {
 		}
 		fmt.Fprintf(f, "[%d,%d,%d,%d]", userID, startTime, endTime, logTime)
 	}
-	f.WriteString(jsMid)
+	f.WriteString(mid)
 	for n, username := range users {
 		if n > 0 {
 			f.WriteString(",")
 		}
 		fmt.Fprintf(f, "%q", username)
 	}
-	f.WriteString(jsEnd)
-	f.WriteString(htmlEnd)
+	f.WriteString(end)
 	f.Close()
 	return nil
 }
