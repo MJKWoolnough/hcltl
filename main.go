@@ -42,7 +42,7 @@ func run() error {
 	ended := -1
 	user := -1
 	logged := -1
-	for i := header.FirstCol(); i < header.LastCol(); i++ {
+	for i := header.FirstCol(); i <= header.LastCol(); i++ {
 		switch strings.ToUpper(header.Col(i)) {
 		case "ACCEPTED":
 			accepted = i
