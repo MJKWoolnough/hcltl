@@ -110,3 +110,7 @@ windows-window {
 	position: fixed;
 	outline: none;
 }
+
+tbody tr:first-child div {
+	border-color: currentColor;
+}
