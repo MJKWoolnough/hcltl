@@ -22,6 +22,12 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	"#e16",
 	"#098",
       ],
+      thresholds: [number, string][] = [
+	      [30, "#0f0"],
+	      [80, "#ff0"],
+	      [240, "#fa0"],
+	      [Infinity, "#f00"]
+      ],
       ml = div({"id": "mouseLine"}),
       mt = div({"style": {"background-color": "#fff", "border": "1px solid #000", "position": "absolute", "top": 0, "z-index": 10}}),
       timeline = div(),
@@ -158,7 +164,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	document.body.style.setProperty("--rows", maxRows+"");
 	tb.insertBefore(tr([
 		th({"style": {"--rows": loggedRows.length}}, div()),
-		td({"onmousemove": mm}, loggedRows.map((row, n) => row.map(([user, start,, logged]) => div({"title": `${users[user]}\n${formatTime(logged)} ⟶  ${formatTime(start)}`, "style": {"width": (minuteWidth * (start - logged) / 60 + 1) + "px", "left": (minuteWidth * (logged - earliest) / 60 - 2) + "px" , "--row": n}}))))
+		td({"onmousemove": mm}, loggedRows.map((row, n) => row.map(([user, start,, logged]) => div({"title": `${users[user]}\n${formatTime(logged)} ⟶  ${formatTime(start)}`, "style": {"width": (minuteWidth * (start - logged) / 60 + 1) + "px", "left": (minuteWidth * (logged - earliest) / 60 - 2) + "px" , "--row": n, "color": thresholds.find(([max]) => max > (start - logged))![1]}}))))
 	]), tb.firstChild);
 	for (let hour = Math.ceil(earliest / 3600) * 3600; hour <= latest; hour += 3600) {
 		const d = new Date(hour * 1000);
