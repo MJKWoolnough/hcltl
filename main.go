@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/extrame/xls"
+	"github.com/shakinm/xlsReader/xls"
 )
 
 func main() {
@@ -26,15 +26,21 @@ func run() error {
 	}
 	users := make([]string, 0)
 	userIDs := make(map[string]uint64)
-	wb, err := xls.Open(os.Args[1], "utf-8")
+	wb, err := xls.OpenFile(os.Args[1])
 	if err != nil {
 		return err
 	}
-	ws := wb.GetSheet(0)
+	ws, err := wb.GetSheet(0)
+	if err != nil {
+		return err
+	}
 	if ws == nil {
 		return errors.New("no worksheets")
 	}
-	header := ws.Row(0)
+	header, err := ws.GetRow(0)
+	if err != nil {
+		return err
+	}
 	if header == nil {
 		return errors.New("no header row")
 	}
@@ -42,8 +48,12 @@ func run() error {
 	ended := -1
 	user := -1
 	logged := -1
-	for i := header.FirstCol(); i <= header.LastCol(); i++ {
-		switch strings.ToUpper(header.Col(i)) {
+	for i := 0; i <= 0x4000; i++ {
+		c, err := header.GetCol(i)
+		if err != nil {
+			return err
+		}
+		switch strings.ToUpper(c.GetString()) {
 		case "ACCEPTED":
 			accepted = i
 		case "ENDED":
@@ -52,6 +62,9 @@ func run() error {
 			user = i
 		case "DATE/TIME":
 			logged = i
+		}
+		if accepted != -1 && ended != -1 && user != -1 && logged != -1 {
+			break
 		}
 	}
 	if accepted == -1 {
@@ -72,23 +85,42 @@ func run() error {
 	}
 	first := true
 	f.WriteString(start)
-	for i := uint16(1); i < ws.MaxRow; i++ {
-		row := ws.Row(int(i))
-		username := strings.TrimSpace(row.Col(user))
+	for i := 1; i < ws.GetNumberRows(); i++ {
+		row, err := ws.GetRow(int(i))
+		if err != nil {
+			return err
+		}
+		c, err := row.GetCol(user)
+		if err != nil {
+			return err
+		}
+		username := strings.TrimSpace(c.GetString())
 		if username == "" {
 			continue
 		}
-		t := row.Col(accepted)
+		c, err = row.GetCol(accepted)
+		if err != nil {
+			return err
+		}
+		t := c.GetString()
 		if t == "" {
 			continue
 		}
 		startTime := parseTime(t)
-		t = row.Col(ended)
+		c, err = row.GetCol(ended)
+		if err != nil {
+			return err
+		}
+		t = c.GetString()
 		if t == "" {
 			continue
 		}
 		endTime := parseTime(t)
-		t = row.Col(logged)
+		c, err = row.GetCol(logged)
+		if err != nil {
+			return err
+		}
+		t = c.GetString()
 		if t == "" {
 			continue
 		}
