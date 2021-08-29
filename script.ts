@@ -41,6 +41,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	const d = new Date(time * 1000);
 	return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
       },
+      formatDuration = (duration: number) => `${Math.floor(duration / 3600)}:${pad(Math.floor((duration % 3600) / 60))}:${pad(duration % 60)}`,
       settingsButton = svg({"viewBox": "0 0 20 20", "onclick": () => {
 	s.addWindow(settingsWindow);
 	settingsWindow.focus();
@@ -165,7 +166,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 			}
 			rnum++;
 		}
-		t.setAttribute("title", `Total Calls: ${calls}\nTotal Call Time: ${Math.floor(secs / 3600)}:${pad(Math.floor((secs % 3600) / 60))}:${pad(secs % 60)}\nNon-concurrent Call Time: ${Math.floor(cc / 3600)}:${pad(Math.floor((cc % 3600) / 60))}:${pad(cc % 60)}`)
+		t.setAttribute("title", `Total Calls: ${calls}\nTotal Call Time: ${formatDuration(secs)}\nNon-concurrent Call Time: ${formatDuration(cc)}`)
 		maxRows = Math.max(d.length, maxRows);
 	}
 	ml.style.setProperty("--h",  (maxRows * rows.size + loggedRows.length) + "");
@@ -192,7 +193,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 			])]),
 			tr(td({"onmousemove": mm}, [
 				mlt,
-				loggedRows.map((row, n) => row.map(([user, start,, logged]) => div({"title": `${users[user]}\n${formatTime(logged)} ⟶  ${formatTime(start)}`, "style": {"width": (minuteWidth * (start - logged) / 60 + 1) + "px", "left": (minuteWidth * (logged - earliest) / 60 - 2) + "px" , "--row": n, "color": thresholds.find(([max]) => max > (start - logged))![1]}})))
+				loggedRows.map((row, n) => row.map(([user, start,, logged]) => div({"title": `${users[user]}\n${formatTime(logged)} ⟶  ${formatTime(start)}\nWait Time: ${formatDuration(start - logged)}`, "style": {"width": (minuteWidth * (start - logged) / 60 + 1) + "px", "left": (minuteWidth * (logged - earliest) / 60 - 2) + "px" , "--row": n, "color": thresholds.find(([max]) => max > (start - logged))![1]}})))
 			])),
 		]),
 		tb,
