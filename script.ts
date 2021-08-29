@@ -123,21 +123,26 @@ const userFilter = Array.from({"length": users.length}, () => true),
 			d.push([row])
 			set = false;
 		}
-		LLoop:
-		for (const r of loggedRows) {
-			for (const [, cstop,, cstart] of r) {
-				if (logged < cstop && start > cstart) {
-					continue LLoop
+		if (logged > 0) {
+			LLoop:
+			for (const r of loggedRows) {
+				for (const [, cstop,, cstart] of r) {
+					if (logged < cstop && start > cstart) {
+						continue LLoop
+					}
 				}
+				set = true;
+				r.push(row);
+				break;
 			}
-			set = true;
-			r.push(row);
-			break;
+			if (!set) {
+				loggedRows.push([row])
+			}
+			if (logged < earliest) {
+				earliest = logged;
+			}
 		}
-		if (!set) {
-			loggedRows.push([row])
-		}
-		if (logged < earliest) {
+		if (start < earliest) {
 			earliest = start;
 		}
 		if (stop > latest) {

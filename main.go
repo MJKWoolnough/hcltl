@@ -49,6 +49,7 @@ func run() error {
 		"ENDED":     -1,
 		"USER":      -1,
 		"DATE/TIME": -1,
+		"IN/OUT":    -1,
 	}
 	var done int
 	for i := 0; i <= 0x4000; i++ {
@@ -106,6 +107,9 @@ Loop:
 		logTime := parseTime(data["DATE/TIME"])
 		if startTime == 0 || endTime == 0 || logTime == 0 || endTime < startTime || startTime < logTime {
 			continue
+		}
+		if strings.ToUpper(data["IN/OUT"]) == "OUT" {
+			logTime = 0
 		}
 		if first {
 			first = false
