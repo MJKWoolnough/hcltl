@@ -26,6 +26,8 @@ func run() error {
 	}
 	users := make([]string, 0)
 	userIDs := make(map[string]uint64)
+	alarms := make([]string, 0)
+	alarmIDs := make(map[string]uint64)
 	wb, err := xls.OpenFile(os.Args[1])
 	if err != nil {
 		return err
@@ -45,11 +47,12 @@ func run() error {
 		return errors.New("no header row")
 	}
 	cols := map[string]int{
-		"ACCEPTED":  -1,
-		"ENDED":     -1,
-		"USER":      -1,
-		"DATE/TIME": -1,
-		"IN/OUT":    -1,
+		"ACCEPTED":    -1,
+		"ENDED":       -1,
+		"USER":        -1,
+		"DATE/TIME":   -1,
+		"IN/OUT":      -1,
+		"ALARM DESC.": -1,
 	}
 	var done int
 	for i := 0; i <= 0x4000; i++ {
@@ -76,7 +79,6 @@ func run() error {
 	first := true
 	f.WriteString(start)
 	maxRows := ws.GetNumberRows()
-Loop:
 	for i := 1; i < maxRows; i++ {
 		row, err := ws.GetRow(int(i))
 		if err != nil {
@@ -89,12 +91,12 @@ Loop:
 				return err
 			}
 			d := strings.TrimSpace(cell.GetString())
-			if d == "" {
-				continue Loop
-			}
 			data[k] = d
 		}
 		username := data["USER"]
+		if username == "" {
+			continue
+		}
 		uname := strings.ToUpper(username)
 		userID, ok := userIDs[uname]
 		if !ok {
@@ -116,7 +118,20 @@ Loop:
 		} else {
 			f.WriteString(",")
 		}
-		fmt.Fprintf(f, "[%d,%d,%d,%d]", userID, startTime, endTime, logTime)
+		fmt.Fprintf(f, "[%d,%d,%d,%d", userID, startTime, endTime, logTime)
+		ad := data["ALARM DESC."]
+		if ad != "" {
+			adu := strings.ToUpper(ad)
+			adID, ok := alarmIDs[adu]
+			if !ok {
+				adID = uint64(len(alarmIDs))
+				alarmIDs[adu] = adID
+				alarms = append(alarms, ad)
+			}
+			fmt.Fprintf(f, ",%d]", adID)
+		} else {
+			fmt.Fprint(f, "]")
+		}
 	}
 	f.WriteString(mid)
 	for n, username := range users {
@@ -124,6 +139,13 @@ Loop:
 			f.WriteString(",")
 		}
 		fmt.Fprintf(f, "%q", username)
+	}
+	f.WriteString(mid2)
+	for n, alarm := range alarms {
+		if n > 0 {
+			f.WriteString(",")
+		}
+		fmt.Fprintf(f, "%q", alarm)
 	}
 	f.WriteString(end)
 	f.Close()
