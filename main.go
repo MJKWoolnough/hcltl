@@ -44,40 +44,29 @@ func run() error {
 	if header == nil {
 		return errors.New("no header row")
 	}
-	accepted := -1
-	ended := -1
-	user := -1
-	logged := -1
+	cols := map[string]int{
+		"ACCEPTED":  -1,
+		"ENDED":     -1,
+		"USER":      -1,
+		"DATE/TIME": -1,
+	}
+	var done int
 	for i := 0; i <= 0x4000; i++ {
 		c, err := header.GetCol(i)
 		if err != nil {
 			return err
 		}
-		switch strings.ToUpper(c.GetString()) {
-		case "ACCEPTED":
-			accepted = i
-		case "ENDED":
-			ended = i
-		case "USER":
-			user = i
-		case "DATE/TIME":
-			logged = i
+		col := strings.ToUpper(c.GetString())
+		if n, ok := cols[col]; ok && n == -1 {
+			cols[col] = i
+			done++
 		}
-		if accepted != -1 && ended != -1 && user != -1 && logged != -1 {
+		if len(cols) == done {
 			break
 		}
 	}
-	if accepted == -1 {
-		return errors.New("no 'Accepted' column")
-	}
-	if ended == -1 {
-		return errors.New("no 'Ended' column")
-	}
-	if user == -1 {
-		return errors.New("no 'User' column")
-	}
-	if logged == -1 {
-		return errors.New("no 'Date/Time' column")
+	if len(cols) != done {
+		return errors.New("cannot find all required headers")
 	}
 	f, err := os.Create(os.Args[1] + ".html")
 	if err != nil {
@@ -85,46 +74,35 @@ func run() error {
 	}
 	first := true
 	f.WriteString(start)
+Loop:
 	for i := 1; i < ws.GetNumberRows(); i++ {
 		row, err := ws.GetRow(int(i))
 		if err != nil {
 			return err
 		}
-		c, err := row.GetCol(user)
-		if err != nil {
-			return err
+		data := make(map[string]string, len(cols))
+		for k, col := range cols {
+			cell, err := row.GetCol(col)
+			if err != nil {
+				return err
+			}
+			d := strings.TrimSpace(cell.GetString())
+			if d == "" {
+				continue Loop
+			}
+			data[k] = d
 		}
-		username := strings.TrimSpace(c.GetString())
-		if username == "" {
-			continue
+		username := data["USER"]
+		uname := strings.ToUpper(username)
+		userID, ok := userIDs[uname]
+		if !ok {
+			userID = uint64(len(userIDs))
+			userIDs[uname] = userID
+			users = append(users, username)
 		}
-		c, err = row.GetCol(accepted)
-		if err != nil {
-			return err
-		}
-		t := c.GetString()
-		if t == "" {
-			continue
-		}
-		startTime := parseTime(t)
-		c, err = row.GetCol(ended)
-		if err != nil {
-			return err
-		}
-		t = c.GetString()
-		if t == "" {
-			continue
-		}
-		endTime := parseTime(t)
-		c, err = row.GetCol(logged)
-		if err != nil {
-			return err
-		}
-		t = c.GetString()
-		if t == "" {
-			continue
-		}
-		logTime := parseTime(t)
+		startTime := parseTime(data["ACCEPTED"])
+		endTime := parseTime(data["ENDED"])
+		logTime := parseTime(data["DATE/TIME"])
 		if startTime == 0 || endTime == 0 || logTime == 0 || endTime < startTime || startTime < logTime {
 			continue
 		}
@@ -132,13 +110,6 @@ func run() error {
 			first = false
 		} else {
 			f.WriteString(",")
-		}
-		uname := strings.ToUpper(username)
-		userID, ok := userIDs[uname]
-		if !ok {
-			userID = uint64(len(userIDs))
-			userIDs[uname] = userID
-			users = append(users, username)
 		}
 		fmt.Fprintf(f, "[%d,%d,%d,%d]", userID, startTime, endTime, logTime)
 	}
