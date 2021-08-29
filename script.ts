@@ -160,7 +160,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		    secs = 0;
 		for (const row of d) {
 			for (const [, start, stop] of row) {
-				cell.appendChild(div({"title": formatTime(start) + " ⟶ " + formatTime(stop), "style": {"width": (minuteWidth * (stop - start) / 60 + 1) + "px", "left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "--row": rnum}}));
+				cell.appendChild(div({"title": `${formatTime(start)} ⟶  ${formatTime(stop)}\nCall Time: ${formatDuration(stop - start)}`, "style": {"width": (minuteWidth * (stop - start) / 60 + 1) + "px", "left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "--row": rnum}}));
 				calls++;
 				secs += stop - start;
 			}
