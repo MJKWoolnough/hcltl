@@ -3,25 +3,13 @@ import {createHTML, clearElement} from './lib/dom.js';
 import {br, button, div, h1, input, label, table, tbody, td, th, thead, tr} from './lib/html.js';
 import {circle, defs, g, line, path, pattern, rect, svg, text, use} from './lib/svg.js';
 import {windows, shell} from './lib/windows.js';
-import {data, users, alarms} from './data.js';
+import {data, users, alarms, lines} from './data.js';
 
 declare const pageLoad: Promise<void>;
 
 let minuteWidth = 20;
 const userFilter = Array.from({"length": users.length}, () => true),
-      colours = [
-	"#29f",
-	"#f43",
-	"#fe3",
-	"#4a5",
-	"#92b",
-	"#0bd",
-	"#f52",
-	"#cd3",
-	"#35b",
-	"#e16",
-	"#098",
-      ],
+      lineHighlight = Array.from({"length": lines.length}, () => false),
       thresholds: [number, string][] = [
 	      [30, "#0f0"],
 	      [80, "#ff0"],
@@ -64,18 +52,29 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	      input({"id": "scale", "type": "number", "min": 1, "value": minuteWidth, "onchange": function(this: HTMLInputElement) {minuteWidth = parseInt(this.value);}}),
 	      br(),
 	      br(),
-	      div({"style": {"text-decoration": "underline"}}, "Toggle Users:"),
-	      br(),
-	      users.map((user, n) => [
-		label({"for": `user_${n}`}, `${user}: `),
-		input({"type": "checkbox", "id": `user_${n}`, "checked": true, "onclick": function(this: HTMLInputElement) {userFilter[n] = this.checked}}),
-		br(),
+	      table([
+		tr([
+			th(div({"style": {"text-decoration": "underline"}}, "Toggle Users:")),
+			th(div({"style": {"text-decoration": "underline"}}, "Highlight Lines:")),
+		]),
+		tr([
+			td(users.map((user, n) => [
+				label({"for": `user_${n}`}, `${user}: `),
+				input({"type": "checkbox", "id": `user_${n}`, "checked": true, "onclick": function(this: HTMLInputElement) {userFilter[n] = this.checked}}),
+				br(),
+			])),
+			td(lines.map((line, n) => [
+				label({"for": `line_${n}`}, `${line}: `),
+				input({"type": "checkbox", "id": `line_${n}`, "onclick": function(this: HTMLInputElement) {lineHighlight[n] = this.checked}}),
+				br(),
+			])),
+		]),
 	      ]),
 	      button({"onclick": () => buildTimeline(data)}, "Rebuild")
       ]),
       buildTimeline = (data: Data) => {
 	const rows = new Map<number, [HTMLDivElement, HTMLDivElement, Data[], [number, number], [number, number][]]>(),
-	      tb = tbody(),
+	      tb = tbody({"style": {"color": "#fd0"}}),
 	      loggedRows: Data[] = [],
 	      mm = (e: MouseEvent) => {
 		const offset = e.offsetX + (e.target instanceof HTMLDivElement ? e.target.offsetLeft : 0);
@@ -99,7 +98,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		    dd: [number, number][];
 		if (!rows.has(user)) {
 			const h = div(users[user]),
-			      t = td({"style": {"color": colours[rows.size % colours.length]}, "onmousemove": mm});
+			      t = td({"onmousemove": mm});
 			rows.set(user, [h, t, d = [], cc = [-1, 0], dd = []]);
 			tb.appendChild(tr([th(h), t]));
 		} else {
@@ -163,8 +162,8 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		    calls = 0,
 		    secs = 0;
 		for (const row of d) {
-			for (const [, start, stop,, alarm] of row) {
-				cell.appendChild(div({"title": `${formatTime(start)} ⟶  ${formatTime(stop)}\nCall Time: ${formatDuration(stop - start)}${alarm ? `\n${alarms[alarm]}` : ""}`, "style": {"width": (minuteWidth * (stop - start) / 60 + 1) + "px", "left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "--row": rnum}}));
+			for (const [, start, stop,, line, alarm] of row) {
+				cell.appendChild(div({"class": lineHighlight[line] ? "h" : undefined, "title": `${formatTime(start)} ⟶  ${formatTime(stop)}\nCall Time: ${formatDuration(stop - start)}${alarm ? `\n${alarms[alarm]}` : ""}`, "style": {"width": (minuteWidth * (stop - start) / 60 + 1) + "px", "left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "--row": rnum}}));
 				calls++;
 				secs += stop - start;
 			}
@@ -200,7 +199,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 			])]),
 			tr(td({"onmousemove": mm}, [
 				mlt,
-				loggedRows.map((row, n) => row.map(([user, start,, logged, alarm]) => div({"title": `${users[user]}\n${formatTime(logged)} ⟶  ${formatTime(start)}\nWait Time: ${formatDuration(start - logged)}${alarm ? `\n${alarms[alarm]}` : ""}`, "style": {"width": (minuteWidth * (start - logged) / 60 + 1) + "px", "left": (minuteWidth * (logged - earliest) / 60 - 2) + "px" , "--row": n, "color": thresholds.find(([max]) => max > (start - logged))![1]}})))
+				loggedRows.map((row, n) => row.map(([user, start,, logged,, alarm]) => div({"title": `${users[user]}\n${formatTime(logged)} ⟶  ${formatTime(start)}\nWait Time: ${formatDuration(start - logged)}${alarm ? `\n${alarms[alarm]}` : ""}`, "style": {"width": (minuteWidth * (start - logged) / 60 + 1) + "px", "left": (minuteWidth * (logged - earliest) / 60 - 2) + "px" , "--row": n, "color": thresholds.find(([max]) => max > (start - logged))![1]}})))
 			])),
 		]),
 		tb,
@@ -216,4 +215,5 @@ pageLoad.then(() => {
 		s,
 	]);
 	buildTimeline(data);
+	console.log(lines);
 });

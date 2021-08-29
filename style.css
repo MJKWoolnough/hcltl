@@ -66,6 +66,7 @@ tbody td div {
 
 tbody tr th {
 	background-color: #ff0;
+	color: #000;
 }
 
 tbody tr:nth-child(2n) th {
@@ -110,4 +111,12 @@ windows-window {
 	z-index: 40;
 	position: fixed;
 	outline: none;
+}
+
+windows-window table th:first-child {
+	padding-right: 5em;
+}
+
+.h {
+	background-color: #a2f;
 }
