@@ -66,6 +66,7 @@ func run() error {
 	}
 	users := NewStringRepo()
 	alarms := NewStringRepo()
+	lines := NewStringRepo()
 	wb, err := xls.OpenFile(os.Args[1])
 	if err != nil {
 		return err
@@ -91,6 +92,7 @@ func run() error {
 		"DATE/TIME":   -1,
 		"IN/OUT":      -1,
 		"ALARM DESC.": -1,
+		"LINE":        -1,
 	}
 	var done int
 	for i := 0; i <= 0x4000; i++ {
@@ -132,10 +134,11 @@ func run() error {
 			data[k] = d
 		}
 		userID := users.GetID(data["USER"])
+		lineID := lines.GetID(data["LINE"])
 		startTime := parseTime(data["ACCEPTED"])
 		endTime := parseTime(data["ENDED"])
 		logTime := parseTime(data["DATE/TIME"])
-		if userID < 0 || startTime == 0 || endTime == 0 || logTime == 0 || endTime < startTime || startTime < logTime {
+		if userID < 0 || lineID < 0 || startTime == 0 || endTime == 0 || logTime == 0 || endTime < startTime || startTime < logTime {
 			continue
 		}
 		if io := strings.ToUpper(data["IN/OUT"]); io == "OUT" {
@@ -148,7 +151,7 @@ func run() error {
 		} else {
 			f.WriteString(",")
 		}
-		fmt.Fprintf(f, "[%d,%d,%d,%d", userID, startTime, endTime, logTime)
+		fmt.Fprintf(f, "[%d,%d,%d,%d,%d", userID, startTime, endTime, logTime, lineID)
 		if aid := alarms.GetID(data["ALARM DESC."]); aid < 0 {
 			fmt.Fprint(f, "]")
 		} else {
@@ -159,6 +162,8 @@ func run() error {
 	users.WriteTo(f)
 	f.WriteString(mid2)
 	alarms.WriteTo(f)
+	f.WriteString(mid3)
+	lines.WriteTo(f)
 	f.WriteString(end)
 	f.Close()
 	return nil
