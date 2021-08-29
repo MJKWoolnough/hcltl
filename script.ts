@@ -76,7 +76,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
       ]),
       buildTimeline = (data: Data) => {
 	const rows = new Map<number, [HTMLDivElement, HTMLDivElement, Data[], [number, number], [number, number][]]>(),
-	      tb = tbody({"style": {"color": "#fd0"}}),
+	      tb = tbody(),
 	      loggedRows: Data[] = [],
 	      mm = (e: MouseEvent) => {
 		const offset = e.offsetX + (e.target instanceof HTMLDivElement ? e.target.offsetLeft : 0);
@@ -201,7 +201,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 			])]),
 			tr(td({"onmousemove": mm}, [
 				mlt,
-				loggedRows.map((row, n) => row.map(([user, start,, logged,, alarm]) => div({"title": `${users[user]}\n${formatTime(logged)} ⟶  ${formatTime(start)}\nWait Time: ${formatDuration(start - logged)}${alarm ? `\n${alarms[alarm]}` : ""}`, "style": {"width": (minuteWidth * (start - logged) / 60 + 1) + "px", "left": (minuteWidth * (logged - earliest) / 60 - 2) + "px" , "--row": n, "color": thresholds.find(([max]) => max > (start - logged))![1]}})))
+				loggedRows.map((row, n) => row.map(([user, start,, logged, line, alarm]) => div({"class": lineHighlight[line] ? "h" : undefined, "title": `${users[user]}\n${formatTime(logged)} ⟶  ${formatTime(start)}\nWait Time: ${formatDuration(start - logged)}${alarm ? `\n${alarms[alarm]}` : ""}`, "style": {"width": (minuteWidth * (start - logged) / 60 + 1) + "px", "left": (minuteWidth * (logged - earliest) / 60 - 2) + "px" , "--row": n, "color": thresholds.find(([max]) => max > (start - logged))![1]}})))
 			])),
 		]),
 		tb,

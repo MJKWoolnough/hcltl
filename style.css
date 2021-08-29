@@ -120,6 +120,12 @@ windows-window table th:first-child {
 	padding-right: 5em;
 }
 
-.h {
+tbody .h {
 	background-color: #a2f;
+}
+
+thead .h {
+	border: 1px solid #000;
+	box-sizing: border-box;
+	z-index: 11 !important;
 }
