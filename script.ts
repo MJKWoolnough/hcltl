@@ -29,6 +29,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	      [Infinity, "#f00"]
       ],
       ml = div({"id": "mouseLine"}),
+      mlt = div({"id": "mouseLine2"}),
       mt = div({"style": {"background-color": "#fff", "border": "1px solid #000", "position": "absolute", "top": 0, "z-index": 10}}),
       timeline = div(),
       s = shell(),
@@ -50,7 +51,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		Array.from({"length": 12}, (_, n) => n * 30).map(r => use({"href": "#spoke", "transform": `rotate(${r})`})),
 	])
       ]),
-      settings = td(div(settingsButton)),
+      settings = th({"rowspan": 2}, div(settingsButton)),
       settingsWindow = windows({"window-icon": "data:image/svg+xml," + encodeURIComponent("<svg xmlns=\"http://www.w3.org/2000/svg\"" + settingsButton.outerHTML.slice(4).replaceAll("#aaa", "#000")), "window-title": "Settings", "tabindex": -1, "onkeydown": (e: KeyboardEvent) => {
 	      console.log(e.key);
 	if (e.key === "Escape") {
@@ -78,8 +79,9 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	      mm = (e: MouseEvent) => {
 		const offset = e.offsetX + (e.target instanceof HTMLDivElement ? e.target.offsetLeft : 0);
 		ml.style.setProperty("left", settings.offsetWidth + offset + "px");
-		mt.style.setProperty("left", (offset - 1) + "");
-		mt.innerText = formatTime(earliest + 60 * (offset+1) / minuteWidth);
+		mlt.style.setProperty("left", offset + "px");
+		mt.style.setProperty("left", settings.offsetWidth + offset + "");
+		mt.innerText = formatTime(earliest + 60 * (offset + 2) / minuteWidth);
 	      },
 	      hours: SVGTextElement[] = [];
 	let earliest = Infinity,
@@ -168,29 +170,31 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	}
 	ml.style.setProperty("--h",  (maxRows * rows.size + loggedRows.length) + "");
 	document.body.style.setProperty("--rows", maxRows+"");
-	tb.insertBefore(tr([
-		th({"style": {"--rows": loggedRows.length}}, div()),
-		td({"onmousemove": mm}, loggedRows.map((row, n) => row.map(([user, start,, logged]) => div({"title": `${users[user]}\n${formatTime(logged)} ⟶  ${formatTime(start)}`, "style": {"width": (minuteWidth * (start - logged) / 60 + 1) + "px", "left": (minuteWidth * (logged - earliest) / 60 - 2) + "px" , "--row": n, "color": thresholds.find(([max]) => max > (start - logged))![1]}}))))
-	]), tb.firstChild);
 	for (let hour = Math.ceil(earliest / 3600) * 3600; hour <= latest; hour += 3600) {
 		const d = new Date(hour * 1000);
 		hours.push(text({"x": (minuteWidth * (hour - earliest) / 60), "y": 15}, `${pad(d.getHours())}:00`));
 	}
 	mt.style.setProperty("left", "-1000px");
 	createHTML(clearElement(timeline), table([
-		thead(tr([settings, th({"style": {"width": (minuteWidth * (latest - earliest) / 60) + "px"}}, [
-			svg({"width": minuteWidth * (latest - earliest) / 60, "height": 20, "viewBox": `0 0 ${minuteWidth * (latest - earliest) / 60} 20`}, [
-				defs(pattern({"id": "ticks", "patternUnits": "userSpaceOnUse", "width": 60 * minuteWidth, "height": 20, "x": -(earliest % 3600) / 60 * minuteWidth - 2}, [
-					line({"y2": 20, "stroke": "#000"}),
-					line({"x1": minuteWidth * 15, "x2": minuteWidth * 15, "y2": 10, "stroke": "#000"}),
-					line({"x1": minuteWidth * 30, "x2": minuteWidth * 30, "y2": 10, "stroke": "#000"}),
-					line({"x1": minuteWidth * 45, "x2": minuteWidth * 45, "y2": 10, "stroke": "#000"})
-				])),
-				rect({"width": "100%", "height": "100%", "fill": "url(#ticks)"}),
-				hours,
-			]),
-			mt
-		])])),
+		thead({"style": {"--rows": loggedRows.length}}, [
+			tr([settings, td({"style": {"width": (minuteWidth * (latest - earliest) / 60) + "px"}}, [
+				svg({"width": minuteWidth * (latest - earliest) / 60, "height": 20, "viewBox": `0 0 ${minuteWidth * (latest - earliest) / 60} 20`}, [
+					defs(pattern({"id": "ticks", "patternUnits": "userSpaceOnUse", "width": 60 * minuteWidth, "height": 20, "x": -(earliest % 3600) / 60 * minuteWidth - 2}, [
+						line({"y2": 20, "stroke": "#000"}),
+						line({"x1": minuteWidth * 15, "x2": minuteWidth * 15, "y2": 10, "stroke": "#000"}),
+						line({"x1": minuteWidth * 30, "x2": minuteWidth * 30, "y2": 10, "stroke": "#000"}),
+						line({"x1": minuteWidth * 45, "x2": minuteWidth * 45, "y2": 10, "stroke": "#000"})
+					])),
+					rect({"width": "100%", "height": "100%", "fill": "url(#ticks)"}),
+					hours,
+				]),
+				mt
+			])]),
+			tr(td({"onmousemove": mm}, [
+				mlt,
+				loggedRows.map((row, n) => row.map(([user, start,, logged]) => div({"title": `${users[user]}\n${formatTime(logged)} ⟶  ${formatTime(start)}`, "style": {"width": (minuteWidth * (start - logged) / 60 + 1) + "px", "left": (minuteWidth * (logged - earliest) / 60 - 2) + "px" , "--row": n, "color": thresholds.find(([max]) => max > (start - logged))![1]}})))
+			])),
+		]),
 		tb,
 	]));
       };

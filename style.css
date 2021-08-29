@@ -10,7 +10,6 @@ text {
 
 table {
 	table-layout: fixed;
-	border: 1px solid #000;
 	border-collapse: collapse;
 	border-spacing: 0;
 	margin: 0;
@@ -23,82 +22,77 @@ td, th {
 	margin: 0;
 }
 
-thead td {
-	border: 1px solid #000;
+thead th {
 	text-align : center;
+	background-color: #fff;
 }
 
-thead th {
+thead {
 	position: sticky;
 	top: 0;
-	z-index: 2;
+	z-index: 30;
 }
 
-thead td svg {
+thead {
+	background-color: #fff;
+}
+
+thead th svg {
 	width: 1em;
 	cursor: pointer;
 }
 
-thead th svg {
-	background-color: #fff;
-	border-bottom: 1px solid #000;
+thead td:first-child {
+	background-color: #eee;
 }
 
-tr > :first-child {
-	position: sticky;
-	left: 0;
-	z-index: 4;
-}
-
-thead td div {
-	height: 20px;
-	background-color: #fff;
-}
-
-tr > :first-child div {
-	border-right: 1px solid #000;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-}
-
-tbody th div {
-	background-color: #ff0;
-	height: calc(2em * var(--rows));
-}
-
-tbody tr:nth-child(2n) th div{
-	background-color: #ee0;
-}
-
-tbody td {
+thead td:first-child, tbody td {
 	position: relative;
-	margin: 0;
-	padding: 0;
+	height: calc(var(--rows) * 2em);
+}
+
+thead td:first-child div, tbody td div {
+	position: absolute;
+	top: calc(var(--row) * 2em + 3px);
+	height: calc(2em - 6px);
+	background-color: currentColor;
+	z-index: 10;
 }
 
 tbody td div {
-	background-color: currentColor;
-	position: absolute;
-	z-index: 1;
-	height: calc(2em - 6px);
-	margin: 0;
-	padding: 0;
-	top: calc(3px + var(--row) * 2em);
-	box-sizing: border-box;
 	border: 1px solid #000;
+	box-sizing: border-box;
+}
+
+tbody tr th {
+	background-color: #ff0;
+}
+
+tbody tr:nth-child(2n) th {
+	background-color: #ee0;
 }
 
 tbody tr:nth-child(2n) {
 	background-color: #ddd;
 }
 
-#mouseLine {
+th {
+	position: sticky;
+	left: 0;
+	z-index: 20;
+}
+
+#mouseLine, #mouseLine2 {
 	border-left: 1px solid #f00;
 	position: absolute;
 	top: 1px;
 	z-index: 0;
+	left: -10px;
 	height: calc(2em * var(--h) + 21px);
+}
+
+#mouseLine2 {
+	height: calc(2em * var(--rows));
 }
 
 windows-shell {
@@ -106,11 +100,7 @@ windows-shell {
 }
 
 windows-window {
-	z-index: 20;
+	z-index: 40;
 	position: fixed;
 	outline: none;
-}
-
-tbody tr:first-child div {
-	border-color: currentColor;
 }
