@@ -74,7 +74,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	      button({"onclick": () => buildTimeline(data)}, "Rebuild")
       ]),
       buildTimeline = (data: Data) => {
-	const rows = new Map<number, [HTMLDivElement, HTMLDivElement, Data[], [number, number]]>(),
+	const rows = new Map<number, [HTMLDivElement, HTMLDivElement, Data[], [number, number], [number, number][]]>(),
 	      tb = tbody(),
 	      loggedRows: Data[] = [],
 	      mm = (e: MouseEvent) => {
@@ -95,16 +95,20 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		}
 		let d: Data[],
 		    set = false,
-		    cc: [number, number];
+		    cc: [number, number],
+		    dd: [number, number][];
 		if (!rows.has(user)) {
 			const h = div(users[user]),
 			      t = td({"style": {"color": colours[rows.size % colours.length]}, "onmousemove": mm});
-			rows.set(user, [h, t, d = [], cc = [-1, 0]]);
+			rows.set(user, [h, t, d = [], cc = [-1, 0], dd = []]);
 			tb.appendChild(tr([th(h), t]));
 		} else {
-			[, , d, cc] = rows.get(user)!;
+			[, , d, cc, dd] = rows.get(user)!;
 		}
 		if (start > cc[0]) {
+			if (cc[0] > -1) {
+				dd.push([cc[0], start]);
+			}
 			cc[1] += stop - start;
 			cc[0] = stop;
 		} else if (stop > cc[0]) {
@@ -154,7 +158,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	}
 	earliest = Math.floor(earliest / 60) * 60;
 	latest = Math.ceil(latest / 60) * 60;
-	for (const [, [t, cell, d, [, cc]]] of rows) {
+	for (const [, [t, cell, d, [, cc], dd]] of rows) {
 		let rnum = 0,
 		    calls = 0,
 		    secs = 0;
@@ -165,6 +169,9 @@ const userFilter = Array.from({"length": users.length}, () => true),
 				secs += stop - start;
 			}
 			rnum++;
+		}
+		for (const [start, end] of dd) {
+			cell.appendChild(div({"class": "wait", "title": `Down Time: ${formatDuration(end - start)}`, "style": {"left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "width": (minuteWidth * (end - start) / 60 + 1) + "px"}}));
 		}
 		t.setAttribute("title", `Total Calls: ${calls}\nTotal Call Time: ${formatDuration(secs)}\nNon-concurrent Call Time: ${formatDuration(cc)}`)
 		maxRows = Math.max(d.length, maxRows);

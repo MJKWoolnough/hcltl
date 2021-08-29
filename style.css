@@ -82,6 +82,13 @@ th {
 	z-index: 20;
 }
 
+.wait {
+	top: 0;
+	height: calc(var(--rows) * 2em);
+	border-width: 0;
+	background-color: transparent;
+}
+
 #mouseLine, #mouseLine2 {
 	border-left: 1px solid #f00;
 	position: absolute;
