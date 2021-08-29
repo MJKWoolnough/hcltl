@@ -104,14 +104,16 @@ func run() error {
 			userIDs[uname] = userID
 			users = append(users, username)
 		}
+		if io := strings.ToUpper(data["IN/OUT"]); io == "OUT" {
+			logTime = 0
+		} else if io == "NONE" {
+			continue
+		}
 		startTime := parseTime(data["ACCEPTED"])
 		endTime := parseTime(data["ENDED"])
 		logTime := parseTime(data["DATE/TIME"])
 		if startTime == 0 || endTime == 0 || logTime == 0 || endTime < startTime || startTime < logTime {
 			continue
-		}
-		if strings.ToUpper(data["IN/OUT"]) == "OUT" {
-			logTime = 0
 		}
 		if first {
 			first = false
