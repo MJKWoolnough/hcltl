@@ -30,6 +30,8 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
       },
       formatDuration = (duration: number) => `${Math.floor(duration / 3600)}:${pad(Math.floor((duration % 3600) / 60))}:${pad(duration % 60)}`,
+      stringSort = new Intl.Collator().compare,
+      ss = (a: [string, number], b: [string, number]) => stringSort(a[0], b[0]),
       settingsButton = svg({"viewBox": "0 0 20 20", "onclick": () => {
 	s.addWindow(settingsWindow);
 	settingsWindow.focus();
@@ -58,12 +60,12 @@ const userFilter = Array.from({"length": users.length}, () => true),
 			th(div({"style": {"text-decoration": "underline"}}, "Highlight Lines:")),
 		]),
 		tr([
-			td(users.map((user, n) => [
+			td((users.map((user, n) => [user, n]) as [string, number][]).sort(ss).map(([user, n]) => [
 				label({"for": `user_${n}`}, `${user}: `),
 				input({"type": "checkbox", "id": `user_${n}`, "checked": true, "onclick": function(this: HTMLInputElement) {userFilter[n] = this.checked}}),
 				br(),
 			])),
-			td(lines.map((line, n) => [
+			td((lines.map((line, n) => [line, n]) as [string, number][]).sort(ss).map(([line, n]) => [
 				label({"for": `line_${n}`}, `${line}: `),
 				input({"type": "checkbox", "id": `line_${n}`, "onclick": function(this: HTMLInputElement) {lineHighlight[n] = this.checked}}),
 				br(),
