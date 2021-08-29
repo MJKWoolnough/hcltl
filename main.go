@@ -74,8 +74,9 @@ func run() error {
 	}
 	first := true
 	f.WriteString(start)
+	maxRows := ws.GetNumberRows()
 Loop:
-	for i := 1; i < ws.GetNumberRows(); i++ {
+	for i := 1; i < maxRows; i++ {
 		row, err := ws.GetRow(int(i))
 		if err != nil {
 			return err
