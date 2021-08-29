@@ -3,7 +3,7 @@ import {createHTML, clearElement} from './lib/dom.js';
 import {br, button, div, h1, input, label, table, tbody, td, th, thead, tr} from './lib/html.js';
 import {circle, defs, g, line, path, pattern, rect, svg, text, use} from './lib/svg.js';
 import {windows, shell} from './lib/windows.js';
-import {data, users, alarms, lines} from './data.js';
+import {data, users, alarms, lines, reasons} from './data.js';
 
 declare const pageLoad: Promise<void>;
 
@@ -164,8 +164,8 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		    calls = 0,
 		    secs = 0;
 		for (const row of d) {
-			for (const [, start, stop,, line, alarm] of row) {
-				cell.appendChild(div({"class": lineHighlight[line] ? "h" : undefined, "title": `${formatTime(start)} ⟶  ${formatTime(stop)}\nCall Time: ${formatDuration(stop - start)}${alarm ? `\n${alarms[alarm]}` : ""}`, "style": {"width": (minuteWidth * (stop - start) / 60 + 1) + "px", "left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "--row": rnum}}));
+			for (const [, start, stop,, line, reason, alarm] of row) {
+				cell.appendChild(div({"class": lineHighlight[line] ? "h" : undefined, "title": `${formatTime(start)} ⟶  ${formatTime(stop)}\nCall Time: ${formatDuration(stop - start)}${alarm ? `\n${alarms[alarm]}` : ""}\n${reasons[reason]}`, "style": {"width": (minuteWidth * (stop - start) / 60 + 1) + "px", "left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "--row": rnum}}));
 				calls++;
 				secs += stop - start;
 			}
@@ -201,7 +201,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 			])]),
 			tr(td({"onmousemove": mm}, [
 				mlt,
-				loggedRows.map((row, n) => row.map(([user, start,, logged, line, alarm]) => div({"class": lineHighlight[line] ? "h" : undefined, "title": `${users[user]}\n${formatTime(logged)} ⟶  ${formatTime(start)}\nWait Time: ${formatDuration(start - logged)}${alarm ? `\n${alarms[alarm]}` : ""}`, "style": {"width": (minuteWidth * (start - logged) / 60 + 1) + "px", "left": (minuteWidth * (logged - earliest) / 60 - 2) + "px" , "--row": n, "color": thresholds.find(([max]) => max > (start - logged))![1]}})))
+				loggedRows.map((row, n) => row.map(([user, start,, logged, line,, alarm]) => div({"class": lineHighlight[line] ? "h" : undefined, "title": `${users[user]}\n${formatTime(logged)} ⟶  ${formatTime(start)}\nWait Time: ${formatDuration(start - logged)}${alarm ? `\n${alarms[alarm]}` : ""}`, "style": {"width": (minuteWidth * (start - logged) / 60 + 1) + "px", "left": (minuteWidth * (logged - earliest) / 60 - 2) + "px" , "--row": n, "color": thresholds.find(([max]) => max > (start - logged))![1]}})))
 			])),
 		]),
 		tb,
@@ -217,5 +217,4 @@ pageLoad.then(() => {
 		s,
 	]);
 	buildTimeline(data);
-	console.log(lines);
 });
