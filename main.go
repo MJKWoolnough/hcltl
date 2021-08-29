@@ -13,6 +13,46 @@ import (
 	"github.com/shakinm/xlsReader/xls"
 )
 
+type StringRepo struct {
+	strings []string
+	ids     map[string]int64
+}
+
+func NewStringRepo() StringRepo {
+	return StringRepo{
+		ids: make(map[string]int64),
+	}
+}
+
+func (s *StringRepo) GetID(str string) int64 {
+	if str == "" {
+		return -1
+	}
+	ustr := strings.ToUpper(str)
+	id, ok := s.ids[ustr]
+	if !ok {
+		id = int64(len(s.ids))
+		s.ids[ustr] = id
+		s.strings = append(s.strings, str)
+	}
+	return id
+}
+
+func (s *StringRepo) WriteTo(w *os.File) (int64, error) {
+	var count int64
+	for n, str := range s.strings {
+		if n > 0 {
+			w.WriteString(",")
+		}
+		m, err := fmt.Fprintf(w, "%q", str)
+		count += int64(m)
+		if err != nil {
+			return count, err
+		}
+	}
+	return count, nil
+}
+
 func main() {
 	if err := run(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -24,10 +64,8 @@ func run() error {
 	if len(os.Args) < 2 {
 		return fmt.Errorf("usage: %s input", os.Args[0])
 	}
-	users := make([]string, 0)
-	userIDs := make(map[string]uint64)
-	alarms := make([]string, 0)
-	alarmIDs := make(map[string]uint64)
+	users := NewStringRepo()
+	alarms := NewStringRepo()
 	wb, err := xls.OpenFile(os.Args[1])
 	if err != nil {
 		return err
@@ -93,26 +131,16 @@ func run() error {
 			d := strings.TrimSpace(cell.GetString())
 			data[k] = d
 		}
-		username := data["USER"]
-		if username == "" {
+		userID := users.GetID(data["USER"])
+		startTime := parseTime(data["ACCEPTED"])
+		endTime := parseTime(data["ENDED"])
+		logTime := parseTime(data["DATE/TIME"])
+		if userID < 0 || startTime == 0 || endTime == 0 || logTime == 0 || endTime < startTime || startTime < logTime {
 			continue
-		}
-		uname := strings.ToUpper(username)
-		userID, ok := userIDs[uname]
-		if !ok {
-			userID = uint64(len(userIDs))
-			userIDs[uname] = userID
-			users = append(users, username)
 		}
 		if io := strings.ToUpper(data["IN/OUT"]); io == "OUT" {
 			logTime = 0
 		} else if io == "NONE" {
-			continue
-		}
-		startTime := parseTime(data["ACCEPTED"])
-		endTime := parseTime(data["ENDED"])
-		logTime := parseTime(data["DATE/TIME"])
-		if startTime == 0 || endTime == 0 || logTime == 0 || endTime < startTime || startTime < logTime {
 			continue
 		}
 		if first {
@@ -121,34 +149,16 @@ func run() error {
 			f.WriteString(",")
 		}
 		fmt.Fprintf(f, "[%d,%d,%d,%d", userID, startTime, endTime, logTime)
-		ad := data["ALARM DESC."]
-		if ad != "" {
-			adu := strings.ToUpper(ad)
-			adID, ok := alarmIDs[adu]
-			if !ok {
-				adID = uint64(len(alarmIDs))
-				alarmIDs[adu] = adID
-				alarms = append(alarms, ad)
-			}
-			fmt.Fprintf(f, ",%d]", adID)
-		} else {
+		if aid := alarms.GetID(data["ALARM DESC."]); aid < 0 {
 			fmt.Fprint(f, "]")
+		} else {
+			fmt.Fprintf(f, ",%d]", aid)
 		}
 	}
 	f.WriteString(mid)
-	for n, username := range users {
-		if n > 0 {
-			f.WriteString(",")
-		}
-		fmt.Fprintf(f, "%q", username)
-	}
+	users.WriteTo(f)
 	f.WriteString(mid2)
-	for n, alarm := range alarms {
-		if n > 0 {
-			f.WriteString(",")
-		}
-		fmt.Fprintf(f, "%q", alarm)
-	}
+	alarms.WriteTo(f)
 	f.WriteString(end)
 	f.Close()
 	return nil
