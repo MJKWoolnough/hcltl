@@ -66,7 +66,6 @@ tbody td div {
 
 tbody tr th {
 	background-color: #ff0;
-	color: #000;
 }
 
 tbody tr:nth-child(2n) th {
@@ -75,6 +74,10 @@ tbody tr:nth-child(2n) th {
 
 tbody tr:nth-child(2n) {
 	background-color: #ddd;
+}
+
+tbody td {
+	color: #8cf;
 }
 
 th {
