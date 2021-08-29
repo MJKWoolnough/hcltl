@@ -40,17 +40,18 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	const d = new Date(time * 1000);
 	return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
       },
-      settings = td(div(svg({"viewBox": "0 0 20 20", "onclick": () => {
-	      s.addWindow(settingsWindow);
-	      settingsWindow.focus();
+      settingsButton = svg({"viewBox": "0 0 20 20", "onclick": () => {
+	s.addWindow(settingsWindow);
+	settingsWindow.focus();
       }}, [
 	defs(path({"id": "spoke", "d": "M1,7 v2 a1,1 0,0,1 -2,0 v-2 z", "fill": "#aaa"})),
 	g({"transform": "translate(10, 10)"}, [
 		circle({"r": 5.5, "fill": "none", "stroke": "#aaa", "stroke-width": 4.5}),
 		Array.from({"length": 12}, (_, n) => n * 30).map(r => use({"href": "#spoke", "transform": `rotate(${r})`})),
 	])
-      ]))),
-      settingsWindow = windows({"window-icon": "data:image/svg+xml," + encodeURIComponent("<svg xmlns=\"http://www.w3.org/2000/svg\"" + settings.outerHTML.slice(13, -11).replaceAll("#aaa", "#000")), "window-title": "Settings", "tabindex": -1, "onkeydown": (e: KeyboardEvent) => {
+      ]),
+      settings = td(div(settingsButton)),
+      settingsWindow = windows({"window-icon": "data:image/svg+xml," + encodeURIComponent("<svg xmlns=\"http://www.w3.org/2000/svg\"" + settingsButton.outerHTML.slice(4).replaceAll("#aaa", "#000")), "window-title": "Settings", "tabindex": -1, "onkeydown": (e: KeyboardEvent) => {
 	      console.log(e.key);
 	if (e.key === "Escape") {
 		settingsWindow.close();
