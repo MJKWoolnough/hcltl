@@ -108,6 +108,7 @@ th {
 
 windows-shell {
 	position: static;
+	overflow: visible;
 }
 
 windows-window {
