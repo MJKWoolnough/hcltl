@@ -21,10 +21,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
       mt = div({"style": {"background-color": "#fff", "border": "1px solid #000", "position": "absolute", "top": 0, "z-index": 10}}),
       timeline = div(),
       s = shell(desktop(timeline)),
-      pad = (n: number) => {
-	const t = n + "";
-	return t.length == 1 ? "0" + t : t;
-      },
+      pad = (n: number) => (n < 10 ? "0" : "") + n,
       formatTime = (time: number) => {
 	const d = new Date(time * 1000);
 	return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
