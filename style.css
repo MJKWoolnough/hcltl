@@ -107,7 +107,7 @@ th {
 }
 
 windows-shell {
-	height: 0;
+	position: static;
 }
 
 windows-window {

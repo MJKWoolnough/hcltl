@@ -2,7 +2,7 @@ import type {Data} from './data.js';
 import {createHTML, clearElement} from './lib/dom.js';
 import {br, button, div, h1, input, label, table, tbody, td, th, thead, tr} from './lib/html.js';
 import {circle, defs, g, line, path, pattern, rect, svg, text, use} from './lib/svg.js';
-import {windows, shell} from './lib/windows.js';
+import {windows, desktop, shell} from './lib/windows.js';
 import {data, users, alarms, lines, reasons} from './data.js';
 
 declare const pageLoad: Promise<void>;
@@ -20,7 +20,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
       mlt = div({"id": "mouseLine2"}),
       mt = div({"style": {"background-color": "#fff", "border": "1px solid #000", "position": "absolute", "top": 0, "z-index": 10}}),
       timeline = div(),
-      s = shell(),
+      s = shell(desktop(timeline)),
       pad = (n: number) => {
 	const t = n + "";
 	return t.length == 1 ? "0" + t : t;
@@ -212,9 +212,8 @@ data.sort(([,a], [, b]) => a - b);
 
 pageLoad.then(() => {
 	createHTML(clearElement(document.body), [
-		timeline,
-		ml,
 		s,
+		ml
 	]);
 	buildTimeline(data);
 });
