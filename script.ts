@@ -7,7 +7,8 @@ import {data, users, alarms, lines, reasons} from './data.js';
 
 declare const pageLoad: Promise<void>;
 
-let minuteWidth = 20;
+let minuteWidth = 20,
+    nextLabelID = 0;
 const userFilter = Array.from({"length": users.length}, () => true),
       lineHighlight = Array.from({"length": lines.length}, () => false),
       thresholds: [number, string][] = [
@@ -27,6 +28,10 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
       },
       formatDuration = (duration: number) => `${Math.floor(duration / 3600)}:${pad(Math.floor((duration % 3600) / 60))}:${pad(duration % 60)}`,
+      addLabel = (name: string, input: HTMLInputElement): [HTMLLabelElement, HTMLInputElement] => {
+	const id = "ID_" + nextLabelID++;
+	return [label({"for": id}, name), createHTML(input, {id})];
+      },
       stringSort = new Intl.Collator().compare,
       ss = (a: [string, number], b: [string, number]) => stringSort(a[0], b[0]),
       settingsButton = svg({"viewBox": "0 0 20 20", "onclick": () => {
@@ -46,30 +51,27 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		settingsWindow.close();
 	}
       }}, [
-	      h1("Settings"),
-	      label({"for": "scale"}, "Timeline Scale (pixels per minute): "),
-	      input({"id": "scale", "type": "number", "min": 1, "value": minuteWidth, "onchange": function(this: HTMLInputElement) {minuteWidth = parseInt(this.value);}}),
-	      br(),
-	      br(),
-	      table([
+	h1("Settings"),
+	addLabel("Timeline Scale (pixels per minute): ", input({"id": "scale", "type": "number", "min": 1, "value": minuteWidth, "onchange": function(this: HTMLInputElement) {minuteWidth = parseInt(this.value);}})),
+	br(),
+	br(),
+	table([
 		tr([
 			th(div({"style": {"text-decoration": "underline"}}, "Toggle Users:")),
 			th(div({"style": {"text-decoration": "underline"}}, "Highlight Lines:")),
 		]),
 		tr([
 			td((users.map((user, n) => [user, n]) as [string, number][]).sort(ss).map(([user, n]) => [
-				label({"for": `user_${n}`}, `${user}: `),
-				input({"type": "checkbox", "id": `user_${n}`, "checked": true, "onclick": function(this: HTMLInputElement) {userFilter[n] = this.checked}}),
+				addLabel(`${user}: `, input({"type": "checkbox", "id": `user_${n}`, "checked": true, "onclick": function(this: HTMLInputElement) {userFilter[n] = this.checked}})),
 				br(),
 			])),
 			td((lines.map((line, n) => [line, n]) as [string, number][]).sort(ss).map(([line, n]) => [
-				label({"for": `line_${n}`}, `${line}: `),
-				input({"type": "checkbox", "id": `line_${n}`, "onclick": function(this: HTMLInputElement) {lineHighlight[n] = this.checked}}),
+				addLabel(`${line}: `, input({"type": "checkbox", "id": `line_${n}`, "onclick": function(this: HTMLInputElement) {lineHighlight[n] = this.checked}})),
 				br(),
 			])),
 		]),
-	      ]),
-	      button({"onclick": () => buildTimeline(data)}, "Rebuild")
+	]),
+	button({"onclick": () => buildTimeline(data)}, "Rebuild")
       ]),
       buildTimeline = (data: Data) => {
 	const rows = new Map<number, [HTMLDivElement, HTMLDivElement, Data[], [number, number], [number, number][]]>(),
