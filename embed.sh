@@ -1,8 +1,14 @@
 #!/bin/bash
 
+cd "$(dirname "$0")";
+
 if [ ! -e data.js ] || [ $(stat -c %s data.js) -ne 75 ]; then
 	echo "export const data = [], users = [], alarms = [], lines = [], reasons = [];" > data.js;
 fi;
+
+jslib="$(realpath "../jslib/")";
+$jslib/html.sh "$($jslib/requiredHTML.sh script.js)" lib/html.js;
+$jslib/svg.sh "$($jslib/requiredSVG.sh script.js)" lib/svg.js;
 
 (
 	echo "package main";
