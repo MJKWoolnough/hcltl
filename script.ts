@@ -1,7 +1,7 @@
 import type {Data} from './data.js';
-import {createHTML, clearElement, svgNS} from './lib/dom.js';
-import {br, button, div, h1, input, label, table, tbody, td, th, thead, tr} from './lib/html.js';
-import {circle, defs, g, line, path, pattern, rect, svg, text, use} from './lib/svg.js';
+import {clearElement} from './lib/dom.js';
+import {createHTML, br, button, div, h1, input, label, table, tbody, td, th, thead, tr} from './lib/html.js';
+import {ns as svgNS, circle, defs, g, line, path, pattern, rect, svg, text, use} from './lib/svg.js';
 import {windows, desktop, shell} from './lib/windows.js';
 import {data, users, alarms, lines, reasons} from './data.js';
 
