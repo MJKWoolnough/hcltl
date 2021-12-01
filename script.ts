@@ -1,7 +1,7 @@
 import type {Data} from './data.js';
 import {clearElement} from './lib/dom.js';
 import {createHTML, br, button, div, h1, input, label, table, tbody, td, th, thead, tr} from './lib/html.js';
-import {ns as svgNS, circle, defs, g, line, path, pattern, rect, svg, text, use} from './lib/svg.js';
+import {svgData, circle, defs, g, line, path, pattern, rect, svg, text, use} from './lib/svg.js';
 import {windows, desktop, shell} from './lib/windows.js';
 import {data, users, alarms, lines, reasons} from './data.js';
 
@@ -45,7 +45,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	])
       ]),
       settings = th({"rowspan": 2}, div(settingsButton)),
-      settingsWindow = windows({"window-icon": "data:image/svg+xml," + encodeURIComponent("<svg xmlns=\""+svgNS+"\"" + settingsButton.outerHTML.slice(4).replaceAll("#aaa", "#000")), "window-title": "Settings", "tabindex": -1, "onkeydown": (e: KeyboardEvent) => {
+      settingsWindow = windows({"window-icon": svgData(settingsButton), "window-title": "Settings", "tabindex": -1, "onkeydown": (e: KeyboardEvent) => {
 	      console.log(e.key);
 	if (e.key === "Escape") {
 		settingsWindow.close();
