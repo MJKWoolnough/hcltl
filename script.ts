@@ -1,6 +1,6 @@
 import type {Data} from './data.js';
-import {clearElement} from './lib/dom.js';
-import {createHTML, br, button, div, h1, input, label, table, tbody, td, th, thead, tr} from './lib/html.js';
+import {clearElement, makeElement} from './lib/dom.js';
+import {br, button, div, h1, input, label, table, tbody, td, th, thead, tr} from './lib/html.js';
 import {svgData, circle, defs, g, line, path, pattern, rect, svg, text, use} from './lib/svg.js';
 import {windows, desktop, shell} from './lib/windows.js';
 import {data, users, alarms, lines, reasons} from './data.js';
@@ -30,7 +30,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
       formatDuration = (duration: number) => `${Math.floor(duration / 3600)}:${pad(Math.floor((duration % 3600) / 60))}:${pad(duration % 60)}`,
       addLabel = (name: string, input: HTMLInputElement): [HTMLLabelElement, HTMLInputElement] => {
 	const id = "ID_" + nextLabelID++;
-	return [label({"for": id}, name), createHTML(input, {id})];
+	return [label({"for": id}, name), makeElement(input, {id})];
       },
       stringSort = new Intl.Collator().compare,
       ss = (a: [string, number], b: [string, number]) => stringSort(a[0], b[0]),
@@ -183,7 +183,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		hours.push(text({"x": (minuteWidth * (hour - earliest) / 60), "y": 15}, `${pad(d.getHours())}:00`));
 	}
 	mt.style.setProperty("left", "-1000px");
-	createHTML(clearElement(timeline), table([
+	makeElement(clearElement(timeline), table([
 		thead({"style": {"--rows": loggedRows.length}}, [
 			tr([settings, td({"style": {"width": (minuteWidth * (latest - earliest) / 60) + "px"}}, [
 				svg({"width": minuteWidth * (latest - earliest) / 60, "height": 20, "viewBox": `0 0 ${minuteWidth * (latest - earliest) / 60} 20`}, [
@@ -210,7 +210,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 data.sort(([,a], [, b]) => a - b);
 
 pageLoad.then(() => {
-	createHTML(clearElement(document.body), [
+	makeElement(clearElement(document.body), [
 		s,
 		ml
 	]);
