@@ -27,7 +27,7 @@ thead th {
 	background-color: #fff;
 }
 
-thead {
+.sticky thead {
 	position: sticky;
 	top: 0;
 	z-index: 30;

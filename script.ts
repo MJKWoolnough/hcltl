@@ -20,7 +20,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
       ml = div({"id": "mouseLine"}),
       mlt = div({"id": "mouseLine2"}),
       mt = div({"style": {"background-color": "#fff", "border": "1px solid #000", "position": "absolute", "top": 0, "z-index": 10}}),
-      timeline = div(),
+      timeline = div({"class": "sticky"}),
       s = shell(desktop(timeline)),
       pad = (n: number) => (n < 10 ? "0" : "") + n,
       formatTime = (time: number) => {
@@ -52,6 +52,8 @@ const userFilter = Array.from({"length": users.length}, () => true),
       }}, [
 	h1("Settings"),
 	addLabel("Timeline Scale (pixels per minute): ", input({"type": "number", "min": 1, "value": minuteWidth, "onchange": function(this: HTMLInputElement) {minuteWidth = parseInt(this.value);}})),
+	br(),
+	addLabel("Floating Logtime: ", input({"type": "checkbox", "checked": true, "onchange": function(this: HTMLInputElement) {makeElement(timeline, {"class": this.checked ? "sticky" : undefined});}})),
 	br(),
 	br(),
 	table([
