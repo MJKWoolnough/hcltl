@@ -41,12 +41,11 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	defs(path({"id": "spoke", "d": "M1,7 v2 a1,1 0,0,1 -2,0 v-2 z", "fill": "#aaa"})),
 	g({"transform": "translate(10, 10)"}, [
 		circle({"r": 5.5, "fill": "none", "stroke": "#aaa", "stroke-width": 4.5}),
-		Array.from({"length": 12}, (_, n) => n * 30).map(r => use({"href": "#spoke", "transform": `rotate(${r})`})),
+		Array.from({"length": 12}, (_, n) => n * 30).map(r => use({"href": "#spoke", "transform": `rotate(${r})`}))
 	])
       ]),
       settings = th({"rowspan": 2}, div(settingsButton)),
       settingsWindow = windows({"window-icon": svgData(settingsButton), "window-title": "Settings", "tabindex": -1, "onkeydown": (e: KeyboardEvent) => {
-	      console.log(e.key);
 	if (e.key === "Escape") {
 		settingsWindow.close();
 	}
@@ -58,16 +57,16 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	table([
 		tr([
 			th(div({"style": {"text-decoration": "underline"}}, "Toggle Users:")),
-			th(div({"style": {"text-decoration": "underline"}}, "Highlight Lines:")),
+			th(div({"style": {"text-decoration": "underline"}}, "Highlight Lines:"))
 		]),
 		tr([
 			td((users.map((user, n) => [user, n]) as [string, number][]).sort(ss).map(([user, n]) => [
 				addLabel(`${user}: `, input({"type": "checkbox", "id": `user_${n}`, "checked": true, "onclick": function(this: HTMLInputElement) {userFilter[n] = this.checked}})),
-				br(),
+				br()
 			])),
 			td((lines.map((line, n) => [line, n]) as [string, number][]).sort(ss).map(([line, n]) => [
 				addLabel(`${line}: `, input({"type": "checkbox", "id": `line_${n}`, "onclick": function(this: HTMLInputElement) {lineHighlight[n] = this.checked}})),
-				br(),
+				br()
 			])),
 		]),
 	]),
@@ -79,10 +78,9 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	      loggedRows: Data[] = [],
 	      mm = (e: MouseEvent) => {
 		const offset = e.offsetX + (e.target instanceof HTMLDivElement ? e.target.offsetLeft : 0);
-		ml.style.setProperty("left", settings.offsetWidth + offset + "px");
-		mlt.style.setProperty("left", offset + "px");
-		mt.style.setProperty("left", settings.offsetWidth + offset + "");
-		mt.innerText = formatTime(earliest + 60 * (offset + 2) / minuteWidth);
+		makeElement(ml, {"style": {"left": settings.offsetWidth + offset + "px"}});
+		makeElement(mlt, {"style": {"left": offset + "px"}});
+		makeElement(mt, {"style": {"left": settings.offsetWidth + offset + ""}}, formatTime(earliest + 60 * (offset + 2) / minuteWidth));
 	      },
 	      hours: SVGTextElement[] = [];
 	let earliest = Infinity,
@@ -101,7 +99,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 			const h = div(users[user]),
 			      t = td({"onmousemove": mm});
 			rows.set(user, [h, t, d = [], cc = [-1, 0], dd = []]);
-			tb.appendChild(tr([th(h), t]));
+			makeElement(tb, tr([th(h), t]));
 		} else {
 			[, , d, cc, dd] = rows.get(user)!;
 		}
@@ -164,25 +162,25 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		    secs = 0;
 		for (const row of d) {
 			for (const [, start, stop,, line, reason, alarm] of row) {
-				cell.appendChild(div({"class": lineHighlight[line] ? "h" : undefined, "title": `${formatTime(start)} ⟶  ${formatTime(stop)}\nCall Time: ${formatDuration(stop - start)}${alarm ? `\n${alarms[alarm]}` : ""}\n${reasons[reason]}`, "style": {"width": (minuteWidth * (stop - start) / 60 + 1) + "px", "left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "--row": rnum}}));
+				makeElement(cell, div({"class": lineHighlight[line] ? "h" : undefined, "title": `${formatTime(start)} ⟶  ${formatTime(stop)}\nCall Time: ${formatDuration(stop - start)}${alarm ? `\n${alarms[alarm]}` : ""}\n${reasons[reason]}`, "style": {"width": (minuteWidth * (stop - start) / 60 + 1) + "px", "left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "--row": rnum}}));
 				calls++;
 				secs += stop - start;
 			}
 			rnum++;
 		}
 		for (const [start, end] of dd) {
-			cell.appendChild(div({"class": "wait", "title": `Down Time: ${formatDuration(end - start)}`, "style": {"left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "width": (minuteWidth * (end - start) / 60 + 1) + "px"}}));
+			makeElement(cell, div({"class": "wait", "title": `Down Time: ${formatDuration(end - start)}`, "style": {"left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "width": (minuteWidth * (end - start) / 60 + 1) + "px"}}));
 		}
-		t.setAttribute("title", `Total Calls: ${calls}\nTotal Call Time: ${formatDuration(secs)}\nNon-concurrent Call Time: ${formatDuration(cc)}`)
+		makeElement(t, {"title": `Total Calls: ${calls}\nTotal Call Time: ${formatDuration(secs)}\nNon-concurrent Call Time: ${formatDuration(cc)}`});
 		maxRows = Math.max(d.length, maxRows);
 	}
-	ml.style.setProperty("--h",  (maxRows * rows.size + loggedRows.length) + "");
-	document.body.style.setProperty("--rows", maxRows+"");
+	makeElement(ml, {"style": {"--h": maxRows * rows.size + loggedRows.length}});
+	makeElement(document.body, {"style": {"--rows": maxRows}});
 	for (let hour = Math.ceil(earliest / 3600) * 3600; hour <= latest; hour += 3600) {
 		const d = new Date(hour * 1000);
 		hours.push(text({"x": (minuteWidth * (hour - earliest) / 60), "y": 15}, `${pad(d.getHours())}:00`));
 	}
-	mt.style.setProperty("left", "-1000px");
+	makeElement(mt, {"style": {"left": "-1000px"}});
 	makeElement(clearElement(timeline), table([
 		thead({"style": {"--rows": loggedRows.length}}, [
 			tr([settings, td({"style": {"width": (minuteWidth * (latest - earliest) / 60) + "px"}}, [
@@ -194,20 +192,20 @@ const userFilter = Array.from({"length": users.length}, () => true),
 						line({"x1": minuteWidth * 45, "x2": minuteWidth * 45, "y2": 10, "stroke": "#000"})
 					])),
 					rect({"width": "100%", "height": "100%", "fill": "url(#ticks)"}),
-					hours,
+					hours
 				]),
 				mt
 			])]),
 			tr(td({"onmousemove": mm}, [
 				mlt,
 				loggedRows.map((row, n) => row.map(([user, start,, logged, line,, alarm]) => div({"class": lineHighlight[line] ? "h" : undefined, "title": `${users[user]}\n${formatTime(logged)} ⟶  ${formatTime(start)}\nWait Time: ${formatDuration(start - logged)}${alarm ? `\n${alarms[alarm]}` : ""}`, "style": {"width": (minuteWidth * (start - logged) / 60 + 1) + "px", "left": (minuteWidth * (logged - earliest) / 60 - 2) + "px" , "--row": n, "color": thresholds.find(([max]) => max > (start - logged))![1]}})))
-			])),
+			]))
 		]),
-		tb,
+		tb
 	]));
       };
 
-data.sort(([,a], [, b]) => a - b);
+data.sort(([, a], [, b]) => a - b);
 
 pageLoad.then(() => {
 	makeElement(clearElement(document.body), [
