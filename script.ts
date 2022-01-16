@@ -45,7 +45,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	])
       ]),
       settings = th({"rowspan": 2}, div(settingsButton)),
-      settingsWindow = windows({"window-icon": svgData(settingsButton), "window-title": "Settings", "tabindex": -1, "onkeydown": (e: KeyboardEvent) => {
+      settingsWindow = windows({"window-icon": svgData(settingsButton).replaceAll("aaa", "000"), "window-title": "Settings", "tabindex": -1, "onkeydown": (e: KeyboardEvent) => {
 	if (e.key === "Escape") {
 		settingsWindow.close();
 	}
