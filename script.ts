@@ -126,8 +126,8 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		}
 		if (!set) {
 			d.push([row])
-			set = false;
 		}
+		set = false;
 		if (logged > 0) {
 			LLoop:
 			for (const r of loggedRows) {
