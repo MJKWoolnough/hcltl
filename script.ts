@@ -119,7 +119,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		for (const r of d) {
 			for (const [, cstart, cstop] of r) {
 				if (start < cstop && stop > cstart) {
-					continue DLoop
+					continue DLoop;
 				}
 			}
 			set = true;
@@ -135,7 +135,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 			for (const r of loggedRows) {
 				for (const [, cstop,, cstart] of r) {
 					if (logged < cstop && start > cstart) {
-						continue LLoop
+						continue LLoop;
 					}
 				}
 				set = true;
@@ -143,7 +143,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 				break;
 			}
 			if (!set) {
-				loggedRows.push([row])
+				loggedRows.push([row]);
 			}
 			if (logged < earliest) {
 				earliest = logged;
