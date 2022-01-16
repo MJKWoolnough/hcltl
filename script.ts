@@ -96,10 +96,10 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		    cc: [number, number],
 		    dd: [number, number][];
 		if (!rows.has(user)) {
-			const h = div(users[user]),
+			const h = th(div(users[user])),
 			      t = td({"onmousemove": mm});
 			rows.set(user, [h, t, d = [], cc = [-1, 0], dd = []]);
-			makeElement(tb, tr([th(h), t]));
+			makeElement(tb, tr([h, t]));
 		} else {
 			[, , d, cc, dd] = rows.get(user)!;
 		}
