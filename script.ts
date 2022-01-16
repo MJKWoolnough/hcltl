@@ -51,7 +51,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	}
       }}, [
 	h1("Settings"),
-	addLabel("Timeline Scale (pixels per minute): ", input({"id": "scale", "type": "number", "min": 1, "value": minuteWidth, "onchange": function(this: HTMLInputElement) {minuteWidth = parseInt(this.value);}})),
+	addLabel("Timeline Scale (pixels per minute): ", input({"type": "number", "min": 1, "value": minuteWidth, "onchange": function(this: HTMLInputElement) {minuteWidth = parseInt(this.value);}})),
 	br(),
 	br(),
 	table([
@@ -61,11 +61,11 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		]),
 		tr([
 			td((users.map((user, n) => [user, n]) as [string, number][]).sort(ss).map(([user, n]) => [
-				addLabel(`${user}: `, input({"type": "checkbox", "id": `user_${n}`, "checked": true, "onclick": function(this: HTMLInputElement) {userFilter[n] = this.checked}})),
+				addLabel(`${user}: `, input({"type": "checkbox", "checked": true, "onclick": function(this: HTMLInputElement) {userFilter[n] = this.checked}})),
 				br()
 			])),
 			td((lines.map((line, n) => [line, n]) as [string, number][]).sort(ss).map(([line, n]) => [
-				addLabel(`${line}: `, input({"type": "checkbox", "id": `line_${n}`, "onclick": function(this: HTMLInputElement) {lineHighlight[n] = this.checked}})),
+				addLabel(`${line}: `, input({"type": "checkbox", "onclick": function(this: HTMLInputElement) {lineHighlight[n] = this.checked}})),
 				br()
 			])),
 		]),
