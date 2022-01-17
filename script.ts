@@ -1,5 +1,5 @@
 import type {Data} from './data.js';
-import {clearElement, makeElement} from './lib/dom.js';
+import {amendNode, clearNode} from './lib/dom.js';
 import {br, button, div, h1, input, label, table, tbody, td, th, thead, tr} from './lib/html.js';
 import {svgData, circle, defs, g, line, path, pattern, rect, svg, text, use} from './lib/svg.js';
 import {windows, desktop, shell} from './lib/windows.js';
@@ -30,7 +30,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
       formatDuration = (duration: number) => `${Math.floor(duration / 3600)}:${pad(Math.floor((duration % 3600) / 60))}:${pad(duration % 60)}`,
       addLabel = (name: string, input: HTMLInputElement): [HTMLLabelElement, HTMLInputElement] => {
 	const id = "ID_" + nextLabelID++;
-	return [label({"for": id}, name), makeElement(input, {id})];
+	return [label({"for": id}, name), amendNode(input, {id})];
       },
       stringSort = new Intl.Collator().compare,
       ss = (a: [string, number], b: [string, number]) => stringSort(a[0], b[0]),
@@ -53,7 +53,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	h1("Settings"),
 	addLabel("Timeline Scale (pixels per minute): ", input({"type": "number", "min": 1, "value": minuteWidth, "onchange": function(this: HTMLInputElement) {minuteWidth = parseInt(this.value);}})),
 	br(),
-	addLabel("Floating Logtime: ", input({"type": "checkbox", "checked": true, "onchange": function(this: HTMLInputElement) {makeElement(timeline, {"class": this.checked ? "sticky" : undefined});}})),
+	addLabel("Floating Logtime: ", input({"type": "checkbox", "checked": true, "onchange": function(this: HTMLInputElement) {amendNode(timeline, {"class": this.checked ? "sticky" : undefined});}})),
 	br(),
 	br(),
 	table([
@@ -80,9 +80,9 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	      loggedRows: Data[] = [],
 	      mm = (e: MouseEvent) => {
 		const offset = e.offsetX + (e.target instanceof HTMLDivElement ? e.target.offsetLeft : 0);
-		makeElement(ml, {"style": {"left": settings.offsetWidth + offset + "px"}});
-		makeElement(mlt, {"style": {"left": offset + "px"}});
-		makeElement(mt, {"style": {"left": settings.offsetWidth + offset + ""}}, formatTime(earliest + 60 * (offset + 2) / minuteWidth));
+		amendNode(ml, {"style": {"left": settings.offsetWidth + offset + "px"}});
+		amendNode(mlt, {"style": {"left": offset + "px"}});
+		amendNode(mt, {"style": {"left": settings.offsetWidth + offset + ""}}, formatTime(earliest + 60 * (offset + 2) / minuteWidth));
 	      },
 	      hours: SVGTextElement[] = [];
 	let earliest = Infinity,
@@ -101,7 +101,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 			const h = th(div(users[user])),
 			      t = td({"onmousemove": mm});
 			rows.set(user, [h, t, d = [], cc = [-1, 0], dd = []]);
-			makeElement(tb, tr([h, t]));
+			amendNode(tb, tr([h, t]));
 		} else {
 			[, , d, cc, dd] = rows.get(user)!;
 		}
@@ -164,26 +164,26 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		    secs = 0;
 		for (const row of d) {
 			for (const [, start, stop,, line, reason, alarm] of row) {
-				makeElement(cell, div({"class": lineHighlight[line] ? "h" : undefined, "title": `${formatTime(start)} ⟶  ${formatTime(stop)}\nCall Time: ${formatDuration(stop - start)}${alarm ? `\n${alarms[alarm]}` : ""}\n${reasons[reason]}`, "style": {"width": (minuteWidth * (stop - start) / 60 + 1) + "px", "left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "--row": rnum}}));
+				amendNode(cell, div({"class": lineHighlight[line] ? "h" : undefined, "title": `${formatTime(start)} ⟶  ${formatTime(stop)}\nCall Time: ${formatDuration(stop - start)}${alarm ? `\n${alarms[alarm]}` : ""}\n${reasons[reason]}`, "style": {"width": (minuteWidth * (stop - start) / 60 + 1) + "px", "left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "--row": rnum}}));
 				calls++;
 				secs += stop - start;
 			}
 			rnum++;
 		}
 		for (const [start, end] of dd) {
-			makeElement(cell, div({"class": "wait", "title": `Down Time: ${formatDuration(end - start)}`, "style": {"left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "width": (minuteWidth * (end - start) / 60 + 1) + "px"}}));
+			amendNode(cell, div({"class": "wait", "title": `Down Time: ${formatDuration(end - start)}`, "style": {"left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "width": (minuteWidth * (end - start) / 60 + 1) + "px"}}));
 		}
-		makeElement(t, {"title": `Total Calls: ${calls}\nTotal Call Time: ${formatDuration(secs)}\nNon-concurrent Call Time: ${formatDuration(cc)}`});
+		amendNode(t, {"title": `Total Calls: ${calls}\nTotal Call Time: ${formatDuration(secs)}\nNon-concurrent Call Time: ${formatDuration(cc)}`});
 		maxRows = Math.max(d.length, maxRows);
 	}
-	makeElement(ml, {"style": {"--h": maxRows * rows.size + loggedRows.length}});
-	makeElement(document.body, {"style": {"--rows": maxRows}});
+	amendNode(ml, {"style": {"--h": maxRows * rows.size + loggedRows.length}});
+	amendNode(document.body, {"style": {"--rows": maxRows}});
 	for (let hour = Math.ceil(earliest / 3600) * 3600; hour <= latest; hour += 3600) {
 		const d = new Date(hour * 1000);
 		hours.push(text({"x": (minuteWidth * (hour - earliest) / 60), "y": 15}, `${pad(d.getHours())}:00`));
 	}
-	makeElement(mt, {"style": {"left": "-1000px"}});
-	makeElement(clearElement(timeline), table([
+	amendNode(mt, {"style": {"left": "-1000px"}});
+	clearNode(timeline, table([
 		thead({"style": {"--rows": loggedRows.length}}, [
 			tr([settings, td({"style": {"width": (minuteWidth * (latest - earliest) / 60) + "px"}}, [
 				svg({"width": minuteWidth * (latest - earliest) / 60, "height": 20, "viewBox": `0 0 ${minuteWidth * (latest - earliest) / 60} 20`}, [
@@ -210,7 +210,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 data.sort(([, a], [, b]) => a - b);
 
 pageLoad.then(() => {
-	makeElement(clearElement(document.body), [
+	clearNode(document.body, [
 		s,
 		ml
 	]);
