@@ -162,6 +162,9 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		let rnum = 0,
 		    calls = 0,
 		    secs = 0;
+		for (const [start, end] of dd) {
+			amendNode(cell, div({"class": "wait", "title": `Down Time: ${formatDuration(end - start)}`, "style": {"left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "width": (minuteWidth * (end - start) / 60 + 1) + "px"}}));
+		}
 		for (const row of d) {
 			for (const [, start, stop,, line, reason, alarm] of row) {
 				amendNode(cell, div({"class": lineHighlight[line] ? "h" : undefined, "title": `${formatTime(start)} ⟶  ${formatTime(stop)}\nCall Time: ${formatDuration(stop - start)}${alarm ? `\n${alarms[alarm]}` : ""}\n${reasons[reason]}`, "style": {"width": (minuteWidth * (stop - start) / 60 + 1) + "px", "left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "--row": rnum}}));
@@ -169,9 +172,6 @@ const userFilter = Array.from({"length": users.length}, () => true),
 				secs += stop - start;
 			}
 			rnum++;
-		}
-		for (const [start, end] of dd) {
-			amendNode(cell, div({"class": "wait", "title": `Down Time: ${formatDuration(end - start)}`, "style": {"left": (minuteWidth * (start - earliest) / 60 - 2) + "px", "width": (minuteWidth * (end - start) / 60 + 1) + "px"}}));
 		}
 		amendNode(t, {"title": `Total Calls: ${calls}\nTotal Call Time: ${formatDuration(secs)}\nNon-concurrent Call Time: ${formatDuration(cc)}`});
 		maxRows = Math.max(d.length, maxRows);
