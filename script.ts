@@ -82,7 +82,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 		const offset = e.offsetX + (e.target instanceof HTMLDivElement ? e.target.offsetLeft : 0);
 		amendNode(ml, {"style": {"left": settings.offsetWidth + offset + "px"}});
 		amendNode(mlt, {"style": {"left": offset + "px"}});
-		clearNode(mt, {"style": {"left": settings.offsetWidth + offset + ""}}, formatTime(earliest + 60 * (offset + 2) / minuteWidth));
+		clearNode(mt, {"style": {"left": settings.offsetWidth + offset}}, formatTime(earliest + 60 * (offset + 2) / minuteWidth));
 	      },
 	      hours: SVGTextElement[] = [];
 	let earliest = Infinity,
