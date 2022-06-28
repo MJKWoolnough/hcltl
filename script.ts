@@ -69,8 +69,8 @@ const userFilter = Array.from({"length": users.length}, () => true),
 			td((lines.map((line, n) => [line, n]) as [string, number][]).sort(ss).map(([line, n]) => [
 				addLabel(`${line}: `, input({"type": "checkbox", "onclick": function(this: HTMLInputElement) {lineHighlight[n] = this.checked}})),
 				br()
-			])),
-		]),
+			]))
+		])
 	]),
 	button({"onclick": () => buildTimeline(data)}, "Rebuild")
       ]),
