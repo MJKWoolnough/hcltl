@@ -1,9 +1,9 @@
 import type {Data} from './data.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {br, button, div, h1, input, label, table, tbody, td, th, thead, tr} from './lib/html.js';
-import {svgData, circle, defs, g, line, path, pattern, rect, svg, text, use} from './lib/svg.js';
-import {windows, desktop, shell} from './lib/windows.js';
-import {data, users, alarms, lines, reasons} from './data.js';
+import {circle, defs, g, line, path, pattern, rect, svg, svgData, text, use} from './lib/svg.js';
+import {desktop, shell, windows} from './lib/windows.js';
+import {alarms, data, lines, reasons, users} from './data.js';
 
 declare const pageLoad: Promise<void>;
 
