@@ -42,7 +42,9 @@ func (s *StringRepo) WriteTo(w *os.File) (int64, error) {
 	var count int64
 	for n, str := range s.strings {
 		if n > 0 {
-			w.WriteString(",")
+			if _, err := w.WriteString(","); err != nil {
+				return count, err
+			}
 		}
 		m, err := fmt.Fprintf(w, "%q", str)
 		count += int64(m)
@@ -119,7 +121,9 @@ func run() error {
 		return err
 	}
 	first := true
-	f.WriteString(start)
+	if _, err = f.WriteString(start); err != nil {
+		return err
+	}
 	maxRows := ws.GetNumberRows()
 	for i := 1; i < maxRows; i++ {
 		row, err := ws.GetRow(int(i))
@@ -152,26 +156,49 @@ func run() error {
 		if first {
 			first = false
 		} else {
-			f.WriteString(",")
+			if _, err := f.WriteString(","); err != nil {
+				return err
+			}
 		}
 		fmt.Fprintf(f, "[%d,%d,%d,%d,%d,%d", userID, startTime, endTime, logTime, lineID, reasonID)
 		if aid := alarms.GetID(data["ALARM DESC."]); aid < 0 {
-			fmt.Fprint(f, "]")
+			if _, err := fmt.Fprint(f, "]"); err != nil {
+				return err
+			}
 		} else {
-			fmt.Fprintf(f, ",%d]", aid)
+			if _, err := fmt.Fprintf(f, ",%d]", aid); err != nil {
+				return err
+			}
 		}
 	}
-	f.WriteString(mid)
-	users.WriteTo(f)
-	f.WriteString(mid2)
-	alarms.WriteTo(f)
-	f.WriteString(mid3)
-	lines.WriteTo(f)
-	f.WriteString(mid4)
-	reasons.WriteTo(f)
-	f.WriteString(end)
-	f.Close()
-	return nil
+	if _, err := f.WriteString(mid); err != nil {
+		return err
+	}
+	if _, err := users.WriteTo(f); err != nil {
+		return err
+	}
+	if _, err := f.WriteString(mid2); err != nil {
+		return err
+	}
+	if _, err := alarms.WriteTo(f); err != nil {
+		return err
+	}
+	if _, err := f.WriteString(mid3); err != nil {
+		return err
+	}
+	if _, err := lines.WriteTo(f); err != nil {
+		return err
+	}
+	if _, err := f.WriteString(mid4); err != nil {
+		return err
+	}
+	if _, err := reasons.WriteTo(f); err != nil {
+		return err
+	}
+	if _, err := f.WriteString(end); err != nil {
+		return err
+	}
+	return f.Close()
 }
 
 func parseTime(v string) int64 {
