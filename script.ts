@@ -1,11 +1,10 @@
 import type {Data} from './data.js';
 import {amendNode, clearNode} from './lib/dom.js';
 import {br, button, div, h1, input, label, table, tbody, td, th, thead, tr} from './lib/html.js';
+import pageLoad from './lib/load.js';
 import {circle, defs, g, line, path, pattern, rect, svg, svgData, text, use} from './lib/svg.js';
 import {desktop, shell, windows} from './lib/windows.js';
 import {alarms, data, lines, reasons, users} from './data.js';
-
-declare const pageLoad: Promise<void>;
 
 let minuteWidth = 20,
     nextLabelID = 0;
