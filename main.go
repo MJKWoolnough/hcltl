@@ -72,18 +72,18 @@ func run() error {
 	reasons := NewStringRepo()
 	wb, err := xls.OpenFile(os.Args[1])
 	if err != nil {
-		return err
+		return fmt.Errorf("error reading xls file: %w", err)
 	}
 	ws, err := wb.GetSheet(0)
 	if err != nil {
-		return err
+		return fmt.Errorf("error getting first sheet: %w", err)
 	}
 	if ws == nil {
 		return errors.New("no worksheets")
 	}
 	header, err := ws.GetRow(0)
 	if err != nil {
-		return err
+		return fmt.Errorf("error getting first row: %w", err)
 	}
 	if header == nil {
 		return errors.New("no header row")
@@ -102,7 +102,7 @@ func run() error {
 	for i := 0; i <= 0x4000; i++ {
 		c, err := header.GetCol(i)
 		if err != nil {
-			return err
+			return fmt.Errorf("error reading column %d: %w", i+1, err)
 		}
 		col := strings.ToUpper(c.GetString())
 		if n, ok := cols[col]; ok && n == -1 {
@@ -118,23 +118,23 @@ func run() error {
 	}
 	f, err := os.Create(os.Args[1] + ".html")
 	if err != nil {
-		return err
+		return fmt.Errorf("error creating output file: %w", err)
 	}
 	first := true
 	if _, err = f.WriteString(start); err != nil {
-		return err
+		return fmt.Errorf("error writing JS 'start': %w", err)
 	}
 	maxRows := ws.GetNumberRows()
 	for i := 1; i < maxRows; i++ {
 		row, err := ws.GetRow(int(i))
 		if err != nil {
-			return err
+			return fmt.Errorf("error reading row %d: %w", i+1, err)
 		}
 		data := make(map[string]string, len(cols))
 		for k, col := range cols {
 			cell, err := row.GetCol(col)
 			if err != nil {
-				return err
+				return fmt.Errorf("error reading cell %d,%d: %w", col+1, i+1, err)
 			}
 			d := strings.TrimSpace(cell.GetString())
 			data[k] = d
@@ -157,46 +157,48 @@ func run() error {
 			first = false
 		} else {
 			if _, err := f.WriteString(","); err != nil {
-				return err
+				return fmt.Errorf("error writing seperator: %w", err)
 			}
 		}
-		fmt.Fprintf(f, "[%d,%d,%d,%d,%d,%d", userID, startTime, endTime, logTime, lineID, reasonID)
+		if _, err := fmt.Fprintf(f, "[%d,%d,%d,%d,%d,%d", userID, startTime, endTime, logTime, lineID, reasonID); err != nil {
+			return fmt.Errorf("error writing row data: %w", err)
+		}
 		if aid := alarms.GetID(data["ALARM DESC."]); aid < 0 {
 			if _, err := fmt.Fprint(f, "]"); err != nil {
-				return err
+				return fmt.Errorf("error writing close bracker: %w", err)
 			}
 		} else {
 			if _, err := fmt.Fprintf(f, ",%d]", aid); err != nil {
-				return err
+				return fmt.Errorf("error writing alarm desc: %w", err)
 			}
 		}
 	}
 	if _, err := f.WriteString(mid); err != nil {
-		return err
+		return fmt.Errorf("error writing JS 'mid' data: %w", err)
 	}
 	if _, err := users.WriteTo(f); err != nil {
-		return err
+		return fmt.Errorf("error writing user data: %w", err)
 	}
 	if _, err := f.WriteString(mid2); err != nil {
-		return err
+		return fmt.Errorf("error writing JS 'mid2': %w", err)
 	}
 	if _, err := alarms.WriteTo(f); err != nil {
-		return err
+		return fmt.Errorf("error writing alarm data: %w", err)
 	}
 	if _, err := f.WriteString(mid3); err != nil {
-		return err
+		return fmt.Errorf("error writing JS 'mid3': %w", err)
 	}
 	if _, err := lines.WriteTo(f); err != nil {
-		return err
+		return fmt.Errorf("error writing lines data: %w", err)
 	}
 	if _, err := f.WriteString(mid4); err != nil {
-		return err
+		return fmt.Errorf("error writing JS 'mid4': %w", err)
 	}
 	if _, err := reasons.WriteTo(f); err != nil {
-		return err
+		return fmt.Errorf("error writing reasons data: %w", err)
 	}
 	if _, err := f.WriteString(end); err != nil {
-		return err
+		return fmt.Errorf("error writing JS 'end': %w", err)
 	}
 	return f.Close()
 }
