@@ -56,11 +56,11 @@ const userFilter = Array.from({"length": users.length}, () => true),
 	br(),
 	br(),
 	table([
-		tr([
+		thead(tr([
 			th(div({"style": {"text-decoration": "underline"}}, "Toggle Users:")),
 			th(div({"style": {"text-decoration": "underline"}}, "Highlight Lines:"))
-		]),
-		tr([
+		])),
+		tbody(tr([
 			td((users.map((user, n) => [user, n]) as [string, number][]).sort(ss).map(([user, n]) => [
 				addLabel(`${user}: `, input({"type": "checkbox", "checked": true, "onclick": function(this: HTMLInputElement) {userFilter[n] = this.checked}})),
 				br()
@@ -69,7 +69,7 @@ const userFilter = Array.from({"length": users.length}, () => true),
 				addLabel(`${line}: `, input({"type": "checkbox", "onclick": function(this: HTMLInputElement) {lineHighlight[n] = this.checked}})),
 				br()
 			]))
-		])
+		]))
 	]),
 	button({"onclick": () => buildTimeline(data)}, "Rebuild")
       ]),
