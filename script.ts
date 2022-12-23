@@ -11,10 +11,10 @@ let minuteWidth = 20,
 const userFilter = Array.from({"length": users.length}, () => true),
       lineHighlight = Array.from({"length": lines.length}, () => false),
       thresholds: [number, string][] = [
-	      [30, "#0f0"],
-	      [80, "#ff0"],
-	      [240, "#fa0"],
-	      [Infinity, "#f00"]
+	[30, "#0f0"],
+	[80, "#ff0"],
+	[240, "#fa0"],
+	[Infinity, "#f00"]
       ],
       ml = div({"id": "mouseLine"}),
       mlt = div({"id": "mouseLine2"}),
