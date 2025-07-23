@@ -25,4 +25,4 @@ $jslib/svg.sh "$($jslib/requiredSVG.sh script.js)" lib/svg.js;
 	echo "</style></head><body></body></html>\"";
 
 	echo ")";
-) > parts.go
+) > parts.go;
