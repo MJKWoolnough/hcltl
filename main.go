@@ -157,7 +157,7 @@ func run() error {
 			first = false
 		} else {
 			if _, err := f.WriteString(","); err != nil {
-				return fmt.Errorf("error writing seperator: %w", err)
+				return fmt.Errorf("error writing separator: %w", err)
 			}
 		}
 		if _, err := fmt.Fprintf(f, "[%d,%d,%d,%d,%d,%d", userID, startTime, endTime, logTime, lineID, reasonID); err != nil {
