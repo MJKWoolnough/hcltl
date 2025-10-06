@@ -66,28 +66,31 @@ func run() error {
 	if len(os.Args) < 2 {
 		return fmt.Errorf("usage: %s input", os.Args[0])
 	}
+
 	users := NewStringRepo()
 	alarms := NewStringRepo()
 	lines := NewStringRepo()
 	reasons := NewStringRepo()
+
 	wb, err := xls.OpenFile(os.Args[1])
 	if err != nil {
 		return fmt.Errorf("error reading xls file: %w", err)
 	}
+
 	ws, err := wb.GetSheet(0)
 	if err != nil {
 		return fmt.Errorf("error getting first sheet: %w", err)
-	}
-	if ws == nil {
+	} else if ws == nil {
 		return errors.New("no worksheets")
 	}
+
 	header, err := ws.GetRow(0)
 	if err != nil {
 		return fmt.Errorf("error getting first row: %w", err)
-	}
-	if header == nil {
+	} else if header == nil {
 		return errors.New("no header row")
 	}
+
 	cols := map[string]int{
 		"ACCEPTED":    -1,
 		"ENDED":       -1,
@@ -98,39 +101,50 @@ func run() error {
 		"LINE":        -1,
 		"CALL REASON": -1,
 	}
+
 	var done int
+
 	for i := 0; i <= 0x4000; i++ {
 		c, err := header.GetCol(i)
 		if err != nil {
 			return fmt.Errorf("error reading column %d: %w", i+1, err)
 		}
+
 		col := strings.ToUpper(c.GetString())
 		if n, ok := cols[col]; ok && n == -1 {
 			cols[col] = i
 			done++
 		}
+
 		if len(cols) == done {
 			break
 		}
 	}
+
 	if len(cols) != done {
 		return errors.New("cannot find all required headers")
 	}
+
 	f, err := os.Create(os.Args[1] + ".html")
 	if err != nil {
 		return fmt.Errorf("error creating output file: %w", err)
 	}
-	first := true
+
 	if _, err = f.WriteString(start); err != nil {
 		return fmt.Errorf("error writing JS 'start': %w", err)
 	}
+
+	first := true
 	maxRows := ws.GetNumberRows()
+
 	for i := 1; i < maxRows; i++ {
 		row, err := ws.GetRow(int(i))
 		if err != nil {
 			return fmt.Errorf("error reading row %d: %w", i+1, err)
 		}
+
 		data := make(map[string]string, len(cols))
+
 		for k, col := range cols {
 			cell, err := row.GetCol(col)
 			if err != nil {
@@ -139,67 +153,61 @@ func run() error {
 			d := strings.TrimSpace(cell.GetString())
 			data[k] = d
 		}
+
 		userID := users.GetID(data["USER"])
 		lineID := lines.GetID(data["LINE"])
 		reasonID := reasons.GetID(data["CALL REASON"])
 		startTime := parseTime(data["ACCEPTED"])
 		endTime := parseTime(data["ENDED"])
 		logTime := parseTime(data["DATE/TIME"])
+
 		if userID < 0 || lineID < 0 || reasonID < 0 || startTime == 0 || endTime == 0 || logTime == 0 || endTime < startTime || startTime < logTime {
 			continue
 		}
+
 		if io := strings.ToUpper(data["IN/OUT"]); io == "OUT" {
 			logTime = 0
 		} else if io == "NONE" {
 			continue
 		}
+
 		if first {
 			first = false
-		} else {
-			if _, err := f.WriteString(","); err != nil {
-				return fmt.Errorf("error writing separator: %w", err)
-			}
+		} else if _, err := f.WriteString(","); err != nil {
+			return fmt.Errorf("error writing separator: %w", err)
 		}
+
 		if _, err := fmt.Fprintf(f, "[%d,%d,%d,%d,%d,%d", userID, startTime, endTime, logTime, lineID, reasonID); err != nil {
 			return fmt.Errorf("error writing row data: %w", err)
-		}
-		if aid := alarms.GetID(data["ALARM DESC."]); aid < 0 {
+		} else if aid := alarms.GetID(data["ALARM DESC."]); aid < 0 {
 			if _, err := fmt.Fprint(f, "]"); err != nil {
 				return fmt.Errorf("error writing close bracker: %w", err)
 			}
-		} else {
-			if _, err := fmt.Fprintf(f, ",%d]", aid); err != nil {
-				return fmt.Errorf("error writing alarm desc: %w", err)
-			}
+		} else if _, err := fmt.Fprintf(f, ",%d]", aid); err != nil {
+			return fmt.Errorf("error writing alarm desc: %w", err)
 		}
 	}
+
 	if _, err := f.WriteString(mid); err != nil {
 		return fmt.Errorf("error writing JS 'mid' data: %w", err)
-	}
-	if _, err := users.WriteTo(f); err != nil {
+	} else if _, err := users.WriteTo(f); err != nil {
 		return fmt.Errorf("error writing user data: %w", err)
-	}
-	if _, err := f.WriteString(mid2); err != nil {
+	} else if _, err := f.WriteString(mid2); err != nil {
 		return fmt.Errorf("error writing JS 'mid2': %w", err)
-	}
-	if _, err := alarms.WriteTo(f); err != nil {
+	} else if _, err := alarms.WriteTo(f); err != nil {
 		return fmt.Errorf("error writing alarm data: %w", err)
-	}
-	if _, err := f.WriteString(mid3); err != nil {
+	} else if _, err := f.WriteString(mid3); err != nil {
 		return fmt.Errorf("error writing JS 'mid3': %w", err)
-	}
-	if _, err := lines.WriteTo(f); err != nil {
+	} else if _, err := lines.WriteTo(f); err != nil {
 		return fmt.Errorf("error writing lines data: %w", err)
-	}
-	if _, err := f.WriteString(mid4); err != nil {
+	} else if _, err := f.WriteString(mid4); err != nil {
 		return fmt.Errorf("error writing JS 'mid4': %w", err)
-	}
-	if _, err := reasons.WriteTo(f); err != nil {
+	} else if _, err := reasons.WriteTo(f); err != nil {
 		return fmt.Errorf("error writing reasons data: %w", err)
-	}
-	if _, err := f.WriteString(end); err != nil {
+	} else if _, err := f.WriteString(end); err != nil {
 		return fmt.Errorf("error writing JS 'end': %w", err)
 	}
+
 	return f.Close()
 }
 
@@ -208,10 +216,12 @@ func parseTime(v string) int64 {
 	if err != nil {
 		return 0
 	}
+
 	u := int64(math.Round((p - 25569) * 86400))
 	t := time.Unix(u, 0)
 	y, mo, d := t.Date()
 	h, mi, s := t.Clock()
 	_, offset := time.Date(y, mo, d, h, mi, s, 0, time.Local).Zone()
+
 	return u - int64(offset)
 }
