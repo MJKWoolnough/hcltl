@@ -1,1 +1,1 @@
-/home/michael/Programming/Go/src/vimagination.zapto.org/jslib/lib.ts/svg.ts
+../../jslib/lib.ts/svg.ts

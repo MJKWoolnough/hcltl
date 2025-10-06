@@ -1,1 +1,1 @@
-/home/michael/Programming/Go/src/vimagination.zapto.org/jslib/lib.ts/windows.ts
+../../jslib/lib.ts/windows.ts
